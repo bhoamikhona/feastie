@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 import { Link } from "expo-router";
 
-const Home = () => {
+export default function Home() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Feastie!</Text>
@@ -13,11 +13,21 @@ const Home = () => {
       <Link style={styles.link} href="/register">
         Register Page
       </Link>
+
+      <Link style={styles.link} href="/home">
+        Home Page
+      </Link>
+
+      <Link style={styles.link} href="/profile">
+        Profile Page
+      </Link>
+
+      <Link style={styles.link} href="/cart">
+        Cart Page
+      </Link>
     </View>
   );
-};
-
-export default Home;
+}
 
 const styles = StyleSheet.create({
   container: {
