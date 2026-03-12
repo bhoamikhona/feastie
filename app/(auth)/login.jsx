@@ -1,13 +1,11 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
+
 import {
-  AppRegistry,
   Text,
   View,
   StyleSheet,
   Image,
   TouchableHighlight,
-  ImageBackground,
-  Alert,
   Dimensions,
   TextInput,
 } from "react-native";
@@ -16,89 +14,85 @@ import Logo from "../../assets/images/logo.png";
 let deviceHeight = Dimensions.get("window").height;
 let deviceWidth = Dimensions.get("window").width;
 
-export default class App extends Component {
-  state = {
-    email: "",
-    password: "",
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleEmail = (text) => {
+    setEmail(text);
   };
 
-  handleEmail = (text) => {
-    this.setState({ email: text });
+  const handlePassword = (text) => {
+    setPassword(text);
   };
 
-  handlePassword = (text) => {
-    this.setState({ password: text });
+  const handleSubmit = () => {
+    if (!email) return alert("Need an email address!");
+    if (!password) return alert("Need a password!");
+
+    alert("Hey! Thank you for logging in, your email is: " + email);
   };
 
-  handleSubmit = () => {
-    if (!this.state.email) return alert("Need an email address!");
-    if (!this.state.password) return alert("Need a password!");
-
-    alert("Hey! Thank you for logging in, your email is: " + this.state.email);
-  };
-
-  handleForgotPassword = () => {
+  const handleForgotPassword = () => {
     alert("Oh no! You forgot your password! Let's reset it.");
   };
 
-  handleRegister = () => {
+  const handleRegister = () => {
     alert("Let's get you registered, moving to another page...");
   };
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.topContainer}>
-          <Image source={Logo} style={styles.img} />
-        </View>
-        <View style={styles.middleContainer}>
-          <Text style={styles.title}>Welcome to Feastie!</Text>
-          <TextInput
-            value={this.state.email}
-            onChangeText={this.handleEmail}
-            style={styles.inputBox}
-            placeholder={"Email"}
-            autoCapitalize="none"
-            placeholderTextColor="#6c757d"
-            keyboardType="email-address"
-          />
+  return (
+    <View style={styles.container}>
+      <View style={styles.topContainer}>
+        <Image source={Logo} style={styles.img} />
+      </View>
+      <View style={styles.middleContainer}>
+        <Text style={styles.title}>Welcome to Feastie!</Text>
+        <TextInput
+          value={email}
+          onChangeText={handleEmail}
+          style={styles.inputBox}
+          placeholder={"Email"}
+          autoCapitalize="none"
+          placeholderTextColor="#6c757d"
+          keyboardType="email-address"
+        />
 
-          <TextInput
-            value={this.state.password}
-            onChangeText={this.handlePassword}
-            style={styles.inputBox}
-            placeholder={"Password"}
-            secureTextEntry={true}
-            placeholderTextColor="#6c757d"
-          />
+        <TextInput
+          value={password}
+          onChangeText={handlePassword}
+          style={styles.inputBox}
+          placeholder={"Password"}
+          secureTextEntry={true}
+          placeholderTextColor="#6c757d"
+        />
 
-          <TouchableHighlight onPress={this.handleSubmit} style={styles.btn}>
-            <View style={styles.btnView}>
-              <Text style={styles.btnText}>Login</Text>
-            </View>
-          </TouchableHighlight>
-        </View>
-        <View style={styles.bottomContainer}>
+        <TouchableHighlight onPress={handleSubmit} style={styles.btn}>
+          <View style={styles.btnView}>
+            <Text style={styles.btnText}>Login</Text>
+          </View>
+        </TouchableHighlight>
+      </View>
+      <View style={styles.bottomContainer}>
+        <TouchableHighlight
+          onPress={handleForgotPassword}
+          style={styles.bottomButtons}
+        >
+          <Text>Forgot Password?</Text>
+        </TouchableHighlight>
+
+        <View style={{ flexDirection: "row" }}>
+          <Text>Don't have an account? </Text>
           <TouchableHighlight
-            onPress={this.handleForgotPassword}
+            onPress={handleRegister}
             style={styles.bottomButtons}
           >
-            <Text>Forgot Password?</Text>
+            <Text>Register</Text>
           </TouchableHighlight>
-
-          <View style={{ flexDirection: "row" }}>
-            <Text>Don't have an account? </Text>
-            <TouchableHighlight
-              onPress={this.handleRegister}
-              style={styles.bottomButtons}
-            >
-              <Text>Register</Text>
-            </TouchableHighlight>
-          </View>
         </View>
       </View>
-    );
-  }
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
