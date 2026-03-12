@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Image } from "react-native";
 export default function Search() {
   return (
     <View style={styles.container}>
-      <Text>Searchbar</Text>
+      <Text>Search</Text>
     </View>
   );
 }

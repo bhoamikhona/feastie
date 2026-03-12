@@ -25,6 +25,18 @@ export default function Home() {
       <Link style={styles.link} href="/cart">
         Cart Page
       </Link>
+
+      <View style={{ marginTop: 50 }}>
+        <Text style={styles.title}>Testing Fonts</Text>
+
+        <Text style={styles.playfair}>Feastie</Text>
+
+        <Text style={styles.ephesis}>Delicious moments</Text>
+
+        <Text style={styles.montserratRegular}>Burgers • Pizza • Wraps</Text>
+
+        <Text style={styles.montserratMedium}>Order Now</Text>
+      </View>
     </View>
   );
 }
@@ -43,6 +55,25 @@ const styles = StyleSheet.create({
     fontSize: 18,
     borderBottomColor: "black",
     borderBottomWidth: 1,
-    marginVertical: 20,
+    marginVertical: 5,
+  },
+  playfair: {
+    fontFamily: "PlayfairDisplayBold",
+    fontSize: 40,
+  },
+
+  ephesis: {
+    fontFamily: "EphesisRegular",
+    fontSize: 32,
+  },
+
+  montserratRegular: {
+    fontFamily: "MontserratRegular",
+    fontSize: 18,
+  },
+
+  montserratMedium: {
+    fontFamily: "MontserratMedium",
+    fontSize: 18,
   },
 });
