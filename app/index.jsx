@@ -5,6 +5,14 @@ const Home = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Feastie!</Text>
+
+      <Link style={styles.link} href="/login">
+        Login Page
+      </Link>
+
+      <Link style={styles.link} href="/register">
+        Register Page
+      </Link>
     </View>
   );
 };
@@ -20,5 +28,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
+  },
+  link: {
+    fontSize: 18,
+    borderBottomColor: "black",
+    borderBottomWidth: 1,
+    marginVertical: 20,
   },
 });
