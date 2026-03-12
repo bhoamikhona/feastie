@@ -30,6 +30,21 @@ export default class App extends Component {
     this.setState({ password: text });
   };
 
+  handleSubmit = () => {
+    if (!this.state.email) return alert("Need an email address!");
+    if (!this.state.password) return alert("Need a password!");
+
+    alert("Hey! Thank you for logging in, your email is: " + this.state.email);
+  };
+
+  handleForgotPassword = () => {
+    alert("Oh no! You forgot your password! Let's reset it.");
+  };
+
+  handleRegister = () => {
+    alert("Let's get you registered, moving to another page...");
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -57,20 +72,26 @@ export default class App extends Component {
             placeholderTextColor="#6c757d"
           />
 
-          <TouchableHighlight style={styles.btn}>
+          <TouchableHighlight onPress={this.handleSubmit} style={styles.btn}>
             <View style={styles.btnView}>
               <Text style={styles.btnText}>Login</Text>
             </View>
           </TouchableHighlight>
         </View>
         <View style={styles.bottomContainer}>
-          <TouchableHighlight style={styles.bottomButtons}>
+          <TouchableHighlight
+            onPress={this.handleForgotPassword}
+            style={styles.bottomButtons}
+          >
             <Text>Forgot Password?</Text>
           </TouchableHighlight>
 
           <View style={{ flexDirection: "row" }}>
             <Text>Don't have an account? </Text>
-            <TouchableHighlight style={styles.bottomButtons}>
+            <TouchableHighlight
+              onPress={this.handleRegister}
+              style={styles.bottomButtons}
+            >
               <Text>Register</Text>
             </TouchableHighlight>
           </View>
