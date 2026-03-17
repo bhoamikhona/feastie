@@ -14,16 +14,20 @@ export default function Home() {
         Register Page
       </Link>
 
-      <Link style={styles.link} href="/home">
+      <Link style={styles.link} href="/(tabs)">
         Home Page
       </Link>
 
-      <Link style={styles.link} href="/profile">
-        Profile Page
+      <Link style={styles.link} href="/search">
+        Search Page
       </Link>
 
       <Link style={styles.link} href="/cart">
         Cart Page
+      </Link>
+
+      <Link style={styles.link} href="/profile">
+        Profile Page
       </Link>
 
       <View style={{ marginTop: 50 }}>
