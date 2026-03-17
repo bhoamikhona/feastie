@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
+    PlayfairDisplayMedium: require("../assets/fonts/Playfair_Display/static/PlayfairDisplay-Medium.ttf"),
     PlayfairDisplayExtraBold: require("../assets/fonts/Playfair_Display/static/PlayfairDisplay-ExtraBold.ttf"),
     PlayfairDisplayBold: require("../assets/fonts/Playfair_Display/static/PlayfairDisplay-Bold.ttf"),
     EphesisRegular: require("../assets/fonts/Ephesis/Ephesis-Regular.ttf"),

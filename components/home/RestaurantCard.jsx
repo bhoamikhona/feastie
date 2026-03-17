@@ -31,7 +31,7 @@ export default function RestaurantCard({ item, onPress }) {
             </View>
             <View style={styles.cardMetaCol}>
               <View style={styles.cardMetaRow}>
-                <Ionicons name="star" size={width * 0.035} color="#adb5bd" />
+                <Ionicons name="star" size={width * 0.035} color="#ff922b" />
                 <Text style={styles.cardRating}>{item.rating}</Text>
               </View>
               <View style={styles.cardMetaRow}>
@@ -58,10 +58,8 @@ const styles = StyleSheet.create({
     borderRadius: width * 0.04,
     overflow: "hidden",
     elevation: 3,
-    shadowColor: "#212529",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.03)",
+    marginBottom: height * 0.03,
   },
   cardImage: {
     width: "100%",
@@ -77,9 +75,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   cardName: {
-    fontFamily: "MontserratSemiBold",
-    fontSize: width * 0.042,
+    fontFamily: "PlayfairDisplayBold",
+    fontSize: width * 0.045,
     color: "#212529",
+    marginBottom: height * 0.002,
+    letterSpacing: 0.5,
   },
   cardCategory: {
     fontFamily: "MontserratRegular",
@@ -95,12 +95,12 @@ const styles = StyleSheet.create({
   cardMetaRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: width * 0.01,
   },
   cardRating: {
     fontFamily: "MontserratRegular",
     fontSize: width * 0.033,
-    color: "#adb5bd",
+    // color: "#adb5bd",
+    color: "#ff922b",
     marginLeft: width * 0.01,
   },
   cardTime: {
