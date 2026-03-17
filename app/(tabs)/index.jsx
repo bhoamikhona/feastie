@@ -7,6 +7,7 @@ import {
   Dimensions,
   SafeAreaView,
 } from "react-native";
+import { router } from "expo-router";
 import restaurants from "../../lib/restaurants.js";
 import Header from "../../components/home/Header.jsx";
 import SearchBar from "../../components/home/SearchBar.jsx";
@@ -14,8 +15,6 @@ import CategoryList from "../../components/home/CategoryList.jsx";
 import RestaurantCard from "../../components/home/RestaurantCard.jsx";
 
 const { width, height } = Dimensions.get("window");
-
-const categories = ["All", ...new Set(restaurants.flatMap((r) => r.category))];
 
 export default function Home() {
   const [search, setSearch] = useState("");
@@ -58,7 +57,7 @@ export default function Home() {
         renderItem={({ item }) => (
           <RestaurantCard
             item={item}
-            onPress={() => alert("Opening " + item.name)}
+            onPress={() => router.push(`/restaurant/${item.id}`)}
           />
         )}
         ListEmptyComponent={

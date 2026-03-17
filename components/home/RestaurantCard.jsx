@@ -7,17 +7,9 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { BADGE_COLORS } from "../../lib/data";
 
 const { width, height } = Dimensions.get("window");
-
-const BADGE_COLORS = {
-  "Top Rated": { bg: "#fff4e6", text: "#fd7e14" },
-  "Fan Favorite": { bg: "#fff0f6", text: "#e64980" },
-  "Most Ordered": { bg: "#f3f0ff", text: "#7950f2" },
-  "Free Delivery": { bg: "#ebfbee", text: "#2f9e44" },
-  "Editor's Pick": { bg: "#e7f5ff", text: "#1971c2" },
-  "Local Favorite": { bg: "#fff9db", text: "#e67700" },
-};
 
 export default function RestaurantCard({ item, onPress }) {
   return (
@@ -60,7 +52,9 @@ export default function RestaurantCard({ item, onPress }) {
             <Text
               style={[
                 styles.badgeText,
-                { color: BADGE_COLORS[item.badges[0]]?.text ?? "#495057" },
+                {
+                  color: BADGE_COLORS[item.badges[0]]?.text ?? "#495057",
+                },
               ]}
             >
               {item.badges[0]}
