@@ -19,7 +19,7 @@ export default function RestaurantCard({ item, onPress }) {
     >
       <View>
         <Image
-          source={item.image}
+          source={item.images.cover}
           style={styles.cardImage}
           resizeMode="cover"
         />
@@ -27,12 +27,14 @@ export default function RestaurantCard({ item, onPress }) {
           <View style={styles.cardBodyRow}>
             <View>
               <Text style={styles.cardName}>{item.name}</Text>
-              <Text style={styles.cardCategory}>{item.category}</Text>
+              <Text style={styles.cardCategory}>
+                {item.category} · {item.cuisine}
+              </Text>
             </View>
             <View style={styles.cardMetaCol}>
               <View style={styles.cardMetaRow}>
                 <Ionicons name="star" size={width * 0.035} color="#ff922b" />
-                <Text style={styles.cardRating}>{item.rating}</Text>
+                <Text style={styles.cardRating}>{item.rating.average}</Text>
               </View>
               <View style={styles.cardMetaRow}>
                 <Ionicons
@@ -40,7 +42,10 @@ export default function RestaurantCard({ item, onPress }) {
                   size={width * 0.035}
                   color="#adb5bd"
                 />
-                <Text style={styles.cardTime}>{item.deliveryTime} min</Text>
+                <Text style={styles.cardTime}>
+                  {item.delivery.estimated_time_min}–
+                  {item.delivery.estimated_time_max} min
+                </Text>
               </View>
             </View>
           </View>
@@ -54,7 +59,6 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#ffffff",
     marginHorizontal: width * 0.05,
-    marginBottom: height * 0.02,
     borderRadius: width * 0.04,
     overflow: "hidden",
     elevation: 3,
@@ -99,7 +103,6 @@ const styles = StyleSheet.create({
   cardRating: {
     fontFamily: "MontserratRegular",
     fontSize: width * 0.033,
-    // color: "#adb5bd",
     color: "#ff922b",
     marginLeft: width * 0.01,
   },
