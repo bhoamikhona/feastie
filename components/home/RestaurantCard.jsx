@@ -2,111 +2,137 @@ import {
   View,
   Text,
   Image,
-  TouchableHighlight,
+  TouchableOpacity,
   StyleSheet,
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { BADGE_COLORS } from "../../lib/data";
 
 const { width, height } = Dimensions.get("window");
 
 export default function RestaurantCard({ item, onPress }) {
   return (
-    <TouchableHighlight
-      underlayColor="#f1f3f5"
+    <TouchableOpacity
       style={styles.card}
       onPress={onPress}
+      activeOpacity={0.92}
     >
-      <View>
+      <View style={styles.imageContainer}>
         <Image
-          source={item.image}
+          source={item.images.cover}
           style={styles.cardImage}
           resizeMode="cover"
         />
-        <View style={styles.cardBody}>
-          <View style={styles.cardBodyRow}>
-            <View>
-              <Text style={styles.cardName}>{item.name}</Text>
-              <Text style={styles.cardCategory}>{item.category}</Text>
-            </View>
-            <View style={styles.cardMetaCol}>
-              <View style={styles.cardMetaRow}>
-                <Ionicons name="star" size={width * 0.035} color="#ff922b" />
-                <Text style={styles.cardRating}>{item.rating}</Text>
-              </View>
-              <View style={styles.cardMetaRow}>
-                <Ionicons
-                  name="time-outline"
-                  size={width * 0.035}
-                  color="#adb5bd"
-                />
-                <Text style={styles.cardTime}>{item.deliveryTime} min</Text>
-              </View>
-            </View>
+        <View style={styles.timePill}>
+          <Ionicons name="time-outline" size={width * 0.035} color="#000" />
+          <Text style={styles.timeText}>
+            {item.delivery.estimated_time_min}–
+            {item.delivery.estimated_time_max} min
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.cardBody}>
+        <Text style={styles.cardName}>{item.name}</Text>
+        <View style={styles.metaRow}>
+          <Ionicons name="star" size={width * 0.035} color="#ff922b" />
+          <Text style={styles.metaText}>{item.rating.average}</Text>
+          <Text style={styles.dot}>·</Text>
+          <Text style={styles.metaText}>{item.category}</Text>
+          <Text style={styles.dot}>·</Text>
+          <View
+            style={[
+              styles.badge,
+              {
+                backgroundColor: BADGE_COLORS[item.badges[0]]?.bg ?? "#f1f3f5",
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.badgeText,
+                {
+                  color: BADGE_COLORS[item.badges[0]]?.text ?? "#495057",
+                },
+              ]}
+            >
+              {item.badges[0]}
+            </Text>
           </View>
         </View>
       </View>
-    </TouchableHighlight>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#ffffff",
     marginHorizontal: width * 0.05,
-    marginBottom: height * 0.02,
+    marginBottom: height * 0.025,
+    backgroundColor: "#fff",
     borderRadius: width * 0.04,
     overflow: "hidden",
-    elevation: 3,
-    boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.03)",
-    marginBottom: height * 0.03,
+    elevation: 2,
+    boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1)",
+  },
+  imageContainer: {
+    position: "relative",
   },
   cardImage: {
     width: "100%",
-    height: height * 0.2,
+    height: height * 0.22,
     backgroundColor: "#f1f3f5",
   },
-  cardBody: {
-    padding: width * 0.04,
-  },
-  cardBodyRow: {
+  timePill: {
+    position: "absolute",
+    bottom: height * 0.015,
+    left: width * 0.04,
+    backgroundColor: "#ffffff",
+    paddingHorizontal: width * 0.03,
+    paddingVertical: height * 0.006,
+    borderRadius: 999,
     flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
+    gap: width * 0.01,
+  },
+  timeText: {
+    fontFamily: "MontserratMedium",
+    fontSize: width * 0.03,
+    color: "#212529",
+  },
+  cardBody: {
+    paddingHorizontal: width * 0.04,
+    paddingVertical: height * 0.02,
+    paddingBottom: height * 0.025,
   },
   cardName: {
     fontFamily: "PlayfairDisplayBold",
-    fontSize: width * 0.045,
+    fontSize: width * 0.05,
     color: "#212529",
-    marginBottom: height * 0.002,
-    letterSpacing: 0.5,
+    marginBottom: height * 0.007,
   },
-  cardCategory: {
-    fontFamily: "MontserratRegular",
-    fontSize: width * 0.033,
-    color: "#adb5bd",
-    marginTop: height * 0.003,
-    marginBottom: height * 0.008,
-  },
-  cardMetaCol: {
-    alignItems: "flex-end",
-    gap: width * 0.01,
-  },
-  cardMetaRow: {
+  metaRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: width * 0.015,
   },
-  cardRating: {
+  metaText: {
     fontFamily: "MontserratRegular",
     fontSize: width * 0.033,
-    // color: "#adb5bd",
-    color: "#ff922b",
-    marginLeft: width * 0.01,
+    color: "#868e96",
   },
-  cardTime: {
-    fontFamily: "MontserratRegular",
+  dot: {
+    color: "#868e96",
     fontSize: width * 0.033,
-    color: "#adb5bd",
-    marginLeft: width * 0.01,
+  },
+  badge: {
+    paddingHorizontal: width * 0.03,
+    paddingVertical: height * 0.004,
+    borderRadius: 999,
+    alignSelf: "flex-end",
+  },
+  badgeText: {
+    fontFamily: "MontserratMedium",
+    fontSize: width * 0.028,
   },
 });

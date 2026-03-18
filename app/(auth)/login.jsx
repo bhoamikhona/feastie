@@ -9,7 +9,7 @@ import {
   Dimensions,
   TextInput,
 } from "react-native";
-import Logo from "../../assets/images/logo.png";
+import Logo from "../../assets/images/logo.jpg";
 
 let deviceHeight = Dimensions.get("window").height;
 let deviceWidth = Dimensions.get("window").width;
@@ -78,16 +78,20 @@ export default function Login() {
           onPress={handleForgotPassword}
           style={styles.bottomButtons}
         >
-          <Text>Forgot Password?</Text>
+          <Text style={{ fontFamily: "MontserratRegular" }}>
+            Forgot Password?
+          </Text>
         </TouchableHighlight>
 
         <View style={{ flexDirection: "row" }}>
-          <Text>Don't have an account? </Text>
+          <Text style={{ fontFamily: "MontserratRegular" }}>
+            Don't have an account?{" "}
+          </Text>
           <TouchableHighlight
             onPress={handleRegister}
             style={styles.bottomButtons}
           >
-            <Text>Register</Text>
+            <Text style={{ fontFamily: "MontserratRegular" }}>Register</Text>
           </TouchableHighlight>
         </View>
       </View>
@@ -98,7 +102,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fafafa",
+    backgroundColor: "#f7f7f7",
   },
   topContainer: {
     flex: 3,
@@ -114,6 +118,7 @@ const styles = StyleSheet.create({
     fontSize: deviceWidth / 12,
     fontWeight: "bold",
     marginBottom: deviceWidth / 20,
+    fontFamily: "PlayfairDisplayExtraBold",
   },
   middleContainer: {
     flex: 3,
@@ -127,6 +132,7 @@ const styles = StyleSheet.create({
     height: 0.15 * deviceWidth,
     borderRadius: 15,
     padding: 20,
+    fontFamily: "MontserratRegular",
   },
   btn: {
     backgroundColor: "#fd7e14",
@@ -145,6 +151,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#fff",
     fontWeight: "bold",
+    fontFamily: "MontserratBold",
   },
   bottomContainer: {
     flex: 2,

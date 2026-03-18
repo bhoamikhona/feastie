@@ -4,7 +4,7 @@
     "slug": "feastie",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/logo.jpg",
     "scheme": "feastie",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -27,8 +27,6 @@
     "web": {
       "favicon": "./assets/images/logo.png"
     },
-    "plugins": [
-      "expo-font"
-    ]
+    "plugins": ["expo-font"]
   }
 }

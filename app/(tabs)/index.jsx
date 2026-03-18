@@ -1,35 +1,33 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  Dimensions,
-  SafeAreaView,
-} from "react-native";
-import data from "../../lib/data.js";
+import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import restaurants from "../../lib/restaurants.js";
 import Header from "../../components/home/Header.jsx";
-import SearchBar from "../../components/home/SearchBar.jsx";
+import SearchBar from "../../components/SearchBar.jsx";
 import CategoryList from "../../components/home/CategoryList.jsx";
 import RestaurantCard from "../../components/home/RestaurantCard.jsx";
 
 const { width, height } = Dimensions.get("window");
 
-const categories = ["All", ...new Set(data.restaurants.map((r) => r.category))];
-
 export default function Home() {
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedFilter, setSelectedFilter] = useState("All");
 
-  const filteredRestaurants = data.restaurants.filter((r) => {
-    const matchesCategory =
-      selectedCategory === "All" || r.category === selectedCategory;
+  const filteredRestaurants = restaurants.filter((r) => {
+    const matchesFilter =
+      selectedFilter === "All" ||
+      r.category === selectedFilter ||
+      r.cuisine === selectedFilter ||
+      r.type.includes(selectedFilter);
+
     const matchesSearch = r.name.toLowerCase().includes(search.toLowerCase());
-    return matchesCategory && matchesSearch;
+
+    return matchesFilter && matchesSearch;
   });
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <FlatList
         data={filteredRestaurants}
         keyExtractor={(item) => item.id}
@@ -41,18 +39,19 @@ export default function Home() {
             <SearchBar value={search} onChangeText={setSearch} />
             <Text style={styles.sectionTitle}>Categories</Text>
             <CategoryList
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onSelect={setSelectedCategory}
+              categories={[...new Set(restaurants.map((r) => r.category))]}
+              cuisines={[...new Set(restaurants.map((r) => r.cuisine))]}
+              types={[...new Set(restaurants.flatMap((r) => r.type))]}
+              selectedFilter={selectedFilter}
+              onSelect={setSelectedFilter}
             />
-
             <Text style={styles.sectionTitle}>Open Restaurants</Text>
           </View>
         }
         renderItem={({ item }) => (
           <RestaurantCard
             item={item}
-            onPress={() => alert("Opening " + item.name)}
+            onPress={() => router.push(`/restaurant/${item.id}`)}
           />
         )}
         ListEmptyComponent={
