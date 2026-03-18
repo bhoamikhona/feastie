@@ -19,6 +19,7 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
@@ -46,6 +47,10 @@ const MOCK_USER = {
   avatarUrl: null,
   stats: { orders: 12, favorites: 5, saved: 3 },
 };
+
+/* ------------------------------------------------------------------ */
+/*  Shared Components                                                  */
+/* ------------------------------------------------------------------ */
 
 /** Single stat column used inside the stats card. */
 function StatItem({ label, value }) {
@@ -93,6 +98,7 @@ function SettingsRow({ icon, label, onPress, trailing }) {
 /* ------------------------------------------------------------------ */
 
 export default function Profile() {
+  const router = useRouter();
   const [notificationsOn, setNotificationsOn] = useState(true);
   const [darkModeOn, setDarkModeOn] = useState(false);
 
@@ -113,18 +119,18 @@ export default function Profile() {
     Alert.alert("Edit Profile", "This will open the profile editor.");
   };
 
+  /** Navigate to the Account Details screen */
   const handleAccount = () => {
-    // TODO: router.push("/profile/account")
-    Alert.alert("Account Settings", "Manage your email, password, and linked accounts.");
+    router.push("/account");
   };
 
   const handlePrivacy = () => {
-    // TODO: router.push("/profile/privacy")
+    // TODO: router.push("/privacy")
     Alert.alert("Privacy", "Control data sharing and visibility preferences.");
   };
 
   const handleHelp = () => {
-    // TODO: router.push("/profile/help")
+    // TODO: router.push("/help")
     Alert.alert("Help & Support", "Visit our FAQ or contact support@feastie.app.");
   };
 
