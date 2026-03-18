@@ -82,8 +82,8 @@ export default function RestaurantDetails() {
               activeOpacity={0.8}
               onPress={() =>
                 router.push({
-                  pathname: "/item/[itemId]",
-                  params: { itemId: item.id, restaurantId: restaurant.id },
+                  pathname: "/restaurant/item/[id]",
+                  params: { id: item.id },
                 })
               }
             >
