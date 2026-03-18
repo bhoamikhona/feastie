@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import restaurants from "../../lib/restaurants.js";
 import Header from "../../components/home/Header.jsx";
-import SearchBar from "../../components/home/SearchBar.jsx";
+import SearchBar from "../../components/SearchBar.jsx";
 import CategoryList from "../../components/home/CategoryList.jsx";
 import RestaurantCard from "../../components/home/RestaurantCard.jsx";
 
