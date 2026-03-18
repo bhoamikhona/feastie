@@ -22,8 +22,9 @@ export default function RootLayout() {
   return (
     <Stack
       screenOptions={{
-        headerTransparent: true,
-        headerTitle: "",
+        // headerTransparent: true,
+        // headerTitle: "",
+        headerShown: false,
       }}
     />
   );

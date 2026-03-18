@@ -1,12 +1,6 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  Dimensions,
-  SafeAreaView,
-} from "react-native";
+import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import restaurants from "../../lib/restaurants.js";
 import Header from "../../components/home/Header.jsx";
@@ -33,7 +27,7 @@ export default function Home() {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <FlatList
         data={filteredRestaurants}
         keyExtractor={(item) => item.id}
