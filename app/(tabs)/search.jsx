@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Search() {
   const categories = [
@@ -77,41 +78,43 @@ export default function Search() {
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <TextInput
-          placeholder="Search"
-          placeholderTextColor="#666"
-          style={styles.searchInput}
-        />
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.container}>
+          <TextInput
+            placeholder="Search"
+            placeholderTextColor="#666"
+            style={styles.searchInput}
+          />
 
-        <Text style={styles.sectionTitle}>Categories</Text>
+          <Text style={styles.sectionTitle}>Categories</Text>
 
-        <View style={styles.grid}>
-          {categories.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.card}>
-              <View style={styles.imageWrapper}>
-                <Image source={item.image} style={styles.cardImage} />
-              </View>
-              <Text style={styles.cardText}>{item.name}</Text>
-            </TouchableOpacity>
-          ))}
+          <View style={styles.grid}>
+            {categories.map((item) => (
+              <TouchableOpacity key={item.id} style={styles.card}>
+                <View style={styles.imageWrapper}>
+                  <Image source={item.image} style={styles.cardImage} />
+                </View>
+                <Text style={styles.cardText}>{item.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={styles.sectionTitle}>Cuisine</Text>
+
+          <View style={styles.grid}>
+            {cuisines.map((item) => (
+              <TouchableOpacity key={item.id} style={styles.card}>
+                <View style={styles.imageWrapper}>
+                  <Image source={item.image} style={styles.cardImage} />
+                </View>
+                <Text style={styles.cardText}>{item.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-
-        <Text style={styles.sectionTitle}>Cuisine</Text>
-
-        <View style={styles.grid}>
-          {cuisines.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.card}>
-              <View style={styles.imageWrapper}>
-                <Image source={item.image} style={styles.cardImage} />
-              </View>
-              <Text style={styles.cardText}>{item.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

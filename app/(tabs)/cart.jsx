@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([
@@ -31,8 +32,8 @@ export default function Cart() {
   const increaseQuantity = (id) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
+      ),
     );
   };
 
@@ -42,9 +43,9 @@ export default function Cart() {
         .map((item) =>
           item.id === id
             ? { ...item, quantity: Math.max(0, item.quantity - 1) }
-            : item
+            : item,
         )
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0),
     );
   };
 
@@ -53,10 +54,7 @@ export default function Cart() {
   };
 
   const subtotal = useMemo(() => {
-    return cartItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }, [cartItems]);
 
   const total = subtotal + (cartItems.length > 0 ? deliveryFee : 0);
@@ -73,7 +71,7 @@ export default function Cart() {
   }
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen} edges={["top"]}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.title}>Your Cart</Text>
 
@@ -135,7 +133,7 @@ export default function Cart() {
           <Text style={styles.checkoutText}>Proceed to Checkout</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -268,22 +266,22 @@ const styles = StyleSheet.create({
     bottom: 20,
   },
   checkoutButton: {
-  backgroundColor: "#FF6B00",
-  borderRadius: 30,
-  paddingVertical: 16,
-  alignItems: "center",
-  shadowColor: "#FF6B00",
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.3,
-  shadowRadius: 6,
-  elevation: 5,
-},
+    backgroundColor: "#FF6B00",
+    borderRadius: 30,
+    paddingVertical: 16,
+    alignItems: "center",
+    shadowColor: "#FF6B00",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
+  },
   checkoutText: {
-  color: "#fff",
-  fontSize: 16,
-  fontWeight: "700",
-  letterSpacing: 0.5,
-},
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
   emptyContainer: {
     flex: 1,
     backgroundColor: "#fff",
