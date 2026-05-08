@@ -2,7 +2,7 @@ export const getCart = async (req, res) => {
   console.log("getCart");
 };
 
-export const addToCardt = async (req, res) => {
+export const addToCart = async (req, res) => {
   console.log("addToCart");
 };
 

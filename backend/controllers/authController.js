@@ -1,16 +1,85 @@
-export const login = async (req, res) => {
-  console.log("login");
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+
+const generateToken = function (id) {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
-export const register = async (req, res) => {
-  console.log("register");
+export const register = async function (req, res) {
+  const { name, email, password, confirmPassword } = req.body;
+
+  try {
+    if (!name || !email || !password || !confirmPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    const exists = await User.findOne({ email });
+
+    if (exists) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    const user = await User.create({ name, email, password });
+
+    return res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
 };
 
-export const getUserProfile = async (req, res) => {
-  console.log("getUserProfile");
+export const login = async function (req, res) {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user || !(await user.matchPassword(password))) {
+      return res.status(401).json({ message: "Inavlid email or password" });
+    }
+
+    return res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
 };
 
-export const updateUserProfile = async (req, res) => {
-  console.log("updateUserProfile");
-  res.json(req.user);
+export const getUserProfile = async function (req, res) {
+  return res.json(req.user);
+};
+
+export const updateUserProfile = async function (req, res) {
+  try {
+    const user = await User.findById(req.user._id);
+    const { name, phone, address } = req.body;
+
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
+
+    const updated = await user.save();
+
+    return res.json({
+      _id: updated._id,
+      name: updated.name,
+      email: updated.email,
+      phone: updated.phone,
+      address: updated.address,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
 };
