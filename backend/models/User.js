@@ -20,15 +20,23 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: 6,
     },
+    phone: {
+      type: String,
+      default: "",
+    },
     address: {
       street: { type: String, default: "" },
+      apt: { type: String, default: "" },
       city: { type: String, default: "" },
       state: { type: String, default: "" },
       zip: { type: String, default: "" },
     },
-    phone: {
-      type: String,
-      default: "",
+    payment: {
+      cardHolder: { type: String, default: "" },
+      cardNumber: { type: String, default: "" },
+      expiry: { type: String, default: "" },
+      last4: { type: String, default: "" },
+      brand: { type: String, default: "" },
     },
   },
   { timestamps: true },
