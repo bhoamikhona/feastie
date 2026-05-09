@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
   Text,
   View,
@@ -8,50 +7,42 @@ import {
   TouchableHighlight,
   Dimensions,
   TextInput,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
+import { router } from "expo-router";
 import Logo from "../../assets/images/logo.jpg";
+import { useAuth } from "../../context/AuthContext";
 
 let deviceHeight = Dimensions.get("window").height;
 let deviceWidth = Dimensions.get("window").width;
 
 export default function Register() {
+  const { register } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleName = (text) => {
-    setName(text);
-  };
+  const handleSubmit = async () => {
+    if (!name) return Alert.alert("Error", "Please enter your name.");
+    if (!email) return Alert.alert("Error", "Please enter your email.");
+    if (!password) return Alert.alert("Error", "Please enter a password.");
+    if (!confirmPassword)
+      return Alert.alert("Error", "Please confirm your password.");
+    if (password !== confirmPassword)
+      return Alert.alert("Error", "Passwords do not match.");
 
-  const handleEmail = (text) => {
-    setEmail(text);
-  };
-
-  const handlePassword = (text) => {
-    setPassword(text);
-  };
-
-  const handleConfirmPassword = (text) => {
-    setConfirmPassword(text);
-  };
-
-  const handleSubmit = () => {
-    if (!name) return alert("Need your name!");
-    if (!email) return alert("Need an email address!");
-    if (!password) return alert("Need a password!");
-    if (!confirmPassword) return alert("Please confirm your password!");
-    if (password !== confirmPassword) return alert("Passwords do not match!");
-
-    alert("Welcome to Feastie, " + name + "!");
-  };
-
-  const handleForgotPassword = () => {
-    alert("Oh no! You forgot your password! Let's reset it.");
-  };
-
-  const handleLogin = () => {
-    alert("Moving to login page...");
+    try {
+      setLoading(true);
+      await register(name, email, password, confirmPassword);
+      router.replace("/(tabs)");
+    } catch (error) {
+      Alert.alert("Registration Failed", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,66 +52,60 @@ export default function Register() {
       </View>
       <View style={styles.middleContainer}>
         <Text style={styles.title}>Welcome to Feastie!</Text>
-
         <TextInput
           value={name}
-          onChangeText={handleName}
+          onChangeText={setName}
           style={styles.inputBox}
-          placeholder={"Name"}
+          placeholder="Name"
           autoCapitalize="none"
           placeholderTextColor="#6c757d"
         />
-
         <TextInput
           value={email}
-          onChangeText={handleEmail}
+          onChangeText={setEmail}
           style={styles.inputBox}
-          placeholder={"Email"}
+          placeholder="Email"
           autoCapitalize="none"
           placeholderTextColor="#6c757d"
           keyboardType="email-address"
         />
-
         <TextInput
           value={password}
-          onChangeText={handlePassword}
+          onChangeText={setPassword}
           style={styles.inputBox}
-          placeholder={"Password"}
+          placeholder="Password"
           secureTextEntry={true}
           placeholderTextColor="#6c757d"
         />
-
         <TextInput
           value={confirmPassword}
-          onChangeText={handleConfirmPassword}
+          onChangeText={setConfirmPassword}
           style={styles.inputBox}
-          placeholder={"Confirm Password"}
+          placeholder="Confirm Password"
           secureTextEntry={true}
           placeholderTextColor="#6c757d"
         />
-
-        <TouchableHighlight onPress={handleSubmit} style={styles.btn}>
+        <TouchableHighlight
+          onPress={handleSubmit}
+          style={styles.btn}
+          disabled={loading}
+        >
           <View style={styles.btnView}>
-            <Text style={styles.btnText}>Register</Text>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.btnText}>Register</Text>
+            )}
           </View>
         </TouchableHighlight>
       </View>
       <View style={styles.bottomContainer}>
-        <TouchableHighlight
-          onPress={handleForgotPassword}
-          style={styles.bottomButtons}
-        >
-          <Text style={{ fontFamily: "MontserratRegular" }}>
-            Forgot Password?
-          </Text>
-        </TouchableHighlight>
-
         <View style={{ flexDirection: "row" }}>
           <Text style={{ fontFamily: "MontserratRegular" }}>
             Already have an account?{" "}
           </Text>
           <TouchableHighlight
-            onPress={handleLogin}
+            onPress={() => router.push("/(auth)/login")}
             style={styles.bottomButtons}
           >
             <Text style={{ fontFamily: "MontserratRegular" }}>Login</Text>

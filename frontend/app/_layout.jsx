@@ -1,6 +1,29 @@
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
+import { AuthProvider, useAuth } from "../context/AuthContext";
+
+function RootLayoutNav() {
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (user) {
+      router.replace("/(tabs)");
+    } else {
+      router.replace("/(auth)/login");
+    }
+  }, [user, loading]);
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
+  );
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -20,12 +43,8 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        // headerTransparent: true,
-        // headerTitle: "",
-        headerShown: false,
-      }}
-    />
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }

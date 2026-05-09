@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
   Text,
   View,
@@ -8,37 +7,35 @@ import {
   TouchableHighlight,
   Dimensions,
   TextInput,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
+import { router } from "expo-router";
 import Logo from "../../assets/images/logo.jpg";
+import { useAuth } from "../../context/AuthContext";
 
 let deviceHeight = Dimensions.get("window").height;
 let deviceWidth = Dimensions.get("window").width;
 
 export default function Login() {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleEmail = (text) => {
-    setEmail(text);
-  };
+  const handleSubmit = async () => {
+    if (!email) return Alert.alert("Error", "Please enter your email.");
+    if (!password) return Alert.alert("Error", "Please enter your password.");
 
-  const handlePassword = (text) => {
-    setPassword(text);
-  };
-
-  const handleSubmit = () => {
-    if (!email) return alert("Need an email address!");
-    if (!password) return alert("Need a password!");
-
-    alert("Hey! Thank you for logging in, your email is: " + email);
-  };
-
-  const handleForgotPassword = () => {
-    alert("Oh no! You forgot your password! Let's reset it.");
-  };
-
-  const handleRegister = () => {
-    alert("Let's get you registered, moving to another page...");
+    try {
+      setLoading(true);
+      await login(email, password);
+      router.replace("/(tabs)");
+    } catch (error) {
+      Alert.alert("Login Failed", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,45 +47,42 @@ export default function Login() {
         <Text style={styles.title}>Welcome to Feastie!</Text>
         <TextInput
           value={email}
-          onChangeText={handleEmail}
+          onChangeText={setEmail}
           style={styles.inputBox}
-          placeholder={"Email"}
+          placeholder="Email"
           autoCapitalize="none"
           placeholderTextColor="#6c757d"
           keyboardType="email-address"
         />
-
         <TextInput
           value={password}
-          onChangeText={handlePassword}
+          onChangeText={setPassword}
           style={styles.inputBox}
-          placeholder={"Password"}
+          placeholder="Password"
           secureTextEntry={true}
           placeholderTextColor="#6c757d"
         />
-
-        <TouchableHighlight onPress={handleSubmit} style={styles.btn}>
+        <TouchableHighlight
+          onPress={handleSubmit}
+          style={styles.btn}
+          disabled={loading}
+        >
           <View style={styles.btnView}>
-            <Text style={styles.btnText}>Login</Text>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.btnText}>Login</Text>
+            )}
           </View>
         </TouchableHighlight>
       </View>
       <View style={styles.bottomContainer}>
-        <TouchableHighlight
-          onPress={handleForgotPassword}
-          style={styles.bottomButtons}
-        >
-          <Text style={{ fontFamily: "MontserratRegular" }}>
-            Forgot Password?
-          </Text>
-        </TouchableHighlight>
-
         <View style={{ flexDirection: "row" }}>
           <Text style={{ fontFamily: "MontserratRegular" }}>
             Don't have an account?{" "}
           </Text>
           <TouchableHighlight
-            onPress={handleRegister}
+            onPress={() => router.push("/(auth)/register")}
             style={styles.bottomButtons}
           >
             <Text style={{ fontFamily: "MontserratRegular" }}>Register</Text>

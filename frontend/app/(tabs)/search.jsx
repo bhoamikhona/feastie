@@ -34,6 +34,7 @@ export default function Search() {
     getUniqueImage((r) => r.cuisine === cuisine);
 
   const TYPE_IMAGE_OVERRIDES = {
+    Pizza: require("../../assets/images/pizza.jpg"),
     Lunch: require("../../assets/images/menus/pizza-express/padana.jpg"),
     Dinner: require("../../assets/images/menus/olive-garden/lasagna-classico.jpeg"),
   };

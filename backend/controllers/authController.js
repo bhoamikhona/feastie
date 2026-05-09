@@ -6,6 +6,7 @@ const generateToken = function (id) {
 };
 
 export const register = async function (req, res) {
+  // console.log("register hit", req.body);
   const { name, email, password, confirmPassword } = req.body;
 
   try {
@@ -17,13 +18,19 @@ export const register = async function (req, res) {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
+    // console.log("checking if user exists");
+
     const exists = await User.findOne({ email });
 
     if (exists) {
       return res.status(400).json({ message: "Email already in use" });
     }
 
+    // console.log("creating user");
+
     const user = await User.create({ name, email, password });
+
+    // console.log("user created", user);
 
     return res.status(201).json({
       _id: user._id,
@@ -32,6 +39,7 @@ export const register = async function (req, res) {
       token: generateToken(user._id),
     });
   } catch (error) {
+    // console.log("error:", error);
     return res.status(500).json({ message: error.message });
   }
 };
