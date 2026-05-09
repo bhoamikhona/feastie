@@ -6,7 +6,7 @@ const usersData = [
     phone: "+1 (646) 555-0789",
     address: {
       street: "30 Park Place",
-      apt: "Apt 4B",
+      apt: "Apt PH78A",
       city: "New York",
       state: "NY",
       zip: "10007",
