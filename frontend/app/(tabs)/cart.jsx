@@ -1,72 +1,67 @@
-import React, { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   StyleSheet,
   Text,
   View,
   FlatList,
-  Image,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 
 const { width, height } = Dimensions.get("window");
 
 const ACCENT = "#fd7e14";
 const BORDER = "#f1f3f5";
 const MUTED = "#adb5bd";
-const TAX_RATE = 0.08875; // NYC tax rate
+const TAX_RATE = 0.08875;
+const DELIVERY_FEE = 3.99;
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function Cart() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Margherita",
-      restaurant: "Pizza Express",
-      price: 14.99,
-      quantity: 1,
-      image: require("../../assets/images/menus/pizza-express/margherita.jpg"),
-    },
-    {
-      id: 2,
-      name: "Bacon Cheeseburger",
-      restaurant: "Five Guys",
-      price: 11.49,
-      quantity: 2,
-      image: require("../../assets/images/menus/five-guys/bacon-cheeseburger.jpg"),
-    },
-  ]);
-
-  const deliveryFee = 3.99;
-
-  const increaseQuantity = (id) =>
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
-      ),
-    );
-
-  const decreaseQuantity = (id) =>
-    setCartItems((prev) =>
-      prev
-        .map((item) =>
-          item.id === id
-            ? { ...item, quantity: Math.max(0, item.quantity - 1) }
-            : item,
-        )
-        .filter((item) => item.quantity > 0),
-    );
+  const { cart, loading, updateQuantity, clearCart } = useCart();
+  const { token } = useAuth();
 
   const subtotal = useMemo(
-    () => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [cartItems],
+    () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [cart],
   );
 
   const tax = subtotal * TAX_RATE;
-  const total = subtotal + tax + (cartItems.length > 0 ? deliveryFee : 0);
+  const total = subtotal + tax + (cart.length > 0 ? DELIVERY_FEE : 0);
 
-  if (cartItems.length === 0) {
+  const handleCheckout = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/orders`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      await clearCart();
+      Alert.alert("Order Placed!", "Your order has been placed successfully.");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.screen} edges={["top"]}>
+        <Text style={styles.pageTitle}>Your Cart</Text>
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator size="large" color={ACCENT} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (cart.length === 0) {
     return (
       <SafeAreaView style={styles.screen} edges={["top"]}>
         <Text style={styles.pageTitle}>Your Cart</Text>
@@ -84,18 +79,20 @@ export default function Cart() {
   return (
     <SafeAreaView style={styles.screen} edges={["top"]}>
       <FlatList
-        data={cartItems}
-        keyExtractor={(item) => item.id.toString()}
+        data={cart}
+        keyExtractor={(item) => item.itemId}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={<Text style={styles.pageTitle}>Your Cart</Text>}
         renderItem={({ item }) => (
           <View style={styles.row}>
-            <Image
-              source={item.image}
-              style={styles.itemImage}
-              resizeMode="cover"
-            />
+            <View style={[styles.itemImage, { backgroundColor: "#f1f3f5" }]}>
+              <Ionicons
+                name="fast-food-outline"
+                size={width * 0.08}
+                color={MUTED}
+              />
+            </View>
             <View style={styles.itemInfo}>
               <Text style={styles.itemName}>{item.name}</Text>
               <Text style={styles.itemRestaurant}>{item.restaurant}</Text>
@@ -106,14 +103,14 @@ export default function Cart() {
             <View style={styles.qtyCol}>
               <TouchableOpacity
                 style={styles.qBtn}
-                onPress={() => increaseQuantity(item.id)}
+                onPress={() => updateQuantity(item.itemId, item.quantity + 1)}
               >
                 <Ionicons name="add" size={width * 0.04} color={ACCENT} />
               </TouchableOpacity>
               <Text style={styles.qText}>{item.quantity}</Text>
               <TouchableOpacity
                 style={styles.qBtn}
-                onPress={() => decreaseQuantity(item.id)}
+                onPress={() => updateQuantity(item.itemId, item.quantity - 1)}
               >
                 <Ionicons name="remove" size={width * 0.04} color={ACCENT} />
               </TouchableOpacity>
@@ -124,22 +121,21 @@ export default function Cart() {
         ListFooterComponent={
           <View style={styles.summary}>
             <Text style={styles.summaryTitle}>Order Summary</Text>
-
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Subtotal</Text>
               <Text style={styles.summaryValue}>${subtotal.toFixed(2)}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Delivery Fee</Text>
-              <Text style={styles.summaryValue}>${deliveryFee.toFixed(2)}</Text>
+              <Text style={styles.summaryValue}>
+                ${DELIVERY_FEE.toFixed(2)}
+              </Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Tax</Text>
+              <Text style={styles.summaryLabel}>Tax (8.875%)</Text>
               <Text style={styles.summaryValue}>${tax.toFixed(2)}</Text>
             </View>
-
             <View style={styles.divider} />
-
             <View style={styles.summaryRow}>
               <Text style={styles.totalLabel}>Total</Text>
               <Text style={styles.totalValue}>${total.toFixed(2)}</Text>
@@ -154,7 +150,11 @@ export default function Cart() {
             <Text style={styles.footerLabel}>Total Price</Text>
             <Text style={styles.footerTotal}>${total.toFixed(2)}</Text>
           </View>
-          <TouchableOpacity style={styles.checkoutBtn} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.checkoutBtn}
+            onPress={handleCheckout}
+            activeOpacity={0.85}
+          >
             <Text style={styles.checkoutText}>Checkout</Text>
             <Ionicons name="arrow-forward" size={width * 0.045} color="#fff" />
           </TouchableOpacity>
@@ -165,13 +165,8 @@ export default function Cart() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  listContent: {
-    paddingBottom: height * 0.16,
-  },
+  screen: { flex: 1, backgroundColor: "#fff" },
+  listContent: { paddingBottom: height * 0.16 },
   pageTitle: {
     fontFamily: "PlayfairDisplayExtraBold",
     fontSize: width * 0.07,
@@ -180,8 +175,6 @@ const styles = StyleSheet.create({
     paddingTop: height * 0.015,
     marginBottom: height * 0.02,
   },
-
-  // ITEM ROW
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -192,13 +185,10 @@ const styles = StyleSheet.create({
     width: width * 0.2,
     height: width * 0.2,
     borderRadius: width * 0.03,
-    backgroundColor: "#f1f3f5",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  itemInfo: {
-    flex: 1,
-    paddingHorizontal: width * 0.04,
-    gap: height * 0.004,
-  },
+  itemInfo: { flex: 1, paddingHorizontal: width * 0.04, gap: height * 0.004 },
   itemName: {
     fontFamily: "PlayfairDisplayBold",
     fontSize: width * 0.042,
@@ -241,8 +231,6 @@ const styles = StyleSheet.create({
     backgroundColor: BORDER,
     marginHorizontal: width * 0.05,
   },
-
-  // SUMMARY
   summary: {
     marginHorizontal: width * 0.05,
     marginTop: height * 0.025,
@@ -286,8 +274,6 @@ const styles = StyleSheet.create({
     fontSize: width * 0.042,
     color: ACCENT,
   },
-
-  // FOOTER
   footer: {
     position: "absolute",
     bottom: 0,
@@ -329,8 +315,6 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
     color: "#fff",
   },
-
-  // EMPTY STATE
   emptyContainer: {
     flex: 1,
     alignItems: "center",

@@ -6,18 +6,23 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import restaurants from "../../../lib/restaurants";
+import { useCart } from "../../../context/CartContext";
 
 const { width, height } = Dimensions.get("window");
 
 export default function ItemDetails() {
   const { id } = useLocalSearchParams();
+  const { addToCart } = useCart();
   const [count, setCount] = useState(1);
   const [liked, setLiked] = useState(false);
+  const [adding, setAdding] = useState(false);
 
   let item = null;
   let restaurant = null;
@@ -34,6 +39,29 @@ export default function ItemDetails() {
   if (!item || !restaurant) return null;
 
   const total = (item.price * count).toFixed(2);
+
+  const handleAddToCart = async () => {
+    try {
+      setAdding(true);
+      await addToCart({
+        itemId: item.id,
+        name: item.name,
+        restaurant: restaurant.name,
+        restaurantId: restaurant.id,
+        price: item.price,
+        image: "",
+        quantity: count,
+      });
+      Alert.alert("Added to Cart", `${item.name} x${count} added.`, [
+        { text: "Continue Shopping", onPress: () => router.back() },
+        { text: "View Cart", onPress: () => router.push("/(tabs)/cart") },
+      ]);
+    } catch (error) {
+      Alert.alert("Error", "Failed to add to cart.");
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -115,7 +143,6 @@ export default function ItemDetails() {
         </View>
 
         <View style={styles.divider} />
-
         <Text style={styles.sectionTitle}>About</Text>
         <Text style={styles.description}>{item.description}</Text>
       </ScrollView>
@@ -143,9 +170,20 @@ export default function ItemDetails() {
       </View>
 
       <View style={styles.addToCartContainer}>
-        <TouchableOpacity style={styles.addToCartBtn}>
-          <Text style={styles.addToCartText}>Add to Cart</Text>
-          <Ionicons name="arrow-forward" size={width * 0.05} color="#fff" />
+        <TouchableOpacity
+          style={styles.addToCartBtn}
+          onPress={handleAddToCart}
+          disabled={adding}
+          activeOpacity={0.85}
+        >
+          {adding ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <>
+              <Text style={styles.addToCartText}>Add to Cart</Text>
+              <Ionicons name="arrow-forward" size={width * 0.05} color="#fff" />
+            </>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -153,19 +191,13 @@ export default function ItemDetails() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
+  container: { flex: 1, backgroundColor: "#fff" },
   hero: {
     height: height * 0.42,
     backgroundColor: "#fff4e6",
     position: "relative",
   },
-  heroImage: {
-    width: "100%",
-    height: "100%",
-  },
+  heroImage: { width: "100%", height: "100%" },
   backButton: {
     position: "absolute",
     top: height * 0.06,
@@ -199,10 +231,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: width * 0.07,
     marginTop: -(height * 0.03),
   },
-  sheetContent: {
-    padding: width * 0.05,
-    paddingTop: height * 0.025,
-  },
+  sheetContent: { padding: width * 0.05, paddingTop: height * 0.025 },
   nameRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -303,16 +332,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  counterBtnActive: {
-    backgroundColor: "#212529",
-  },
   counterBtnText: {
     fontFamily: "MontserratMedium",
     fontSize: width * 0.055,
     color: "#212529",
-  },
-  counterBtnTextActive: {
-    color: "#ffffff",
   },
   counterValue: {
     fontFamily: "MontserratMedium",

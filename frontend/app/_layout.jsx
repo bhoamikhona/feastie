@@ -2,13 +2,13 @@ import { Stack, router } from "expo-router";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
+import { CartProvider } from "../context/CartContext";
 
 function RootLayoutNav() {
   const { user, loading } = useAuth();
 
   useEffect(() => {
     if (loading) return;
-
     if (user) {
       router.replace("/(tabs)");
     } else {
@@ -16,13 +16,7 @@ function RootLayoutNav() {
     }
   }, [user, loading]);
 
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
-  );
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
 
 export default function RootLayout() {
@@ -38,13 +32,13 @@ export default function RootLayout() {
     MontserratExtraBold: require("../assets/fonts/Montserrat/static/Montserrat-ExtraBold.ttf"),
   });
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <CartProvider>
+        <RootLayoutNav />
+      </CartProvider>
     </AuthProvider>
   );
 }
