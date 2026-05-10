@@ -10,7 +10,9 @@ export const getCart = async function (req, res) {
 };
 
 export const addToCart = async function (req, res) {
-  const { itemId, name, restaurant, restaurantId, price, image } = req.body;
+  const { itemId, name, restaurant, restaurantId, price, image, quantity } =
+    req.body;
+  const qty = quantity && quantity > 0 ? quantity : 1;
 
   try {
     let cart = await Cart.findOne({ user: req.user._id });
@@ -19,7 +21,15 @@ export const addToCart = async function (req, res) {
       cart = await Cart.create({
         user: req.user._id,
         items: [
-          { itemId, name, restaurant, restaurantId, price, image, quantity: 1 },
+          {
+            itemId,
+            name,
+            restaurant,
+            restaurantId,
+            price,
+            image,
+            quantity: qty,
+          },
         ],
       });
       return res.status(201).json(cart);
@@ -28,7 +38,7 @@ export const addToCart = async function (req, res) {
     const existing = cart.items.find((i) => i.itemId === itemId);
 
     if (existing) {
-      existing.quantity += 1;
+      existing.quantity += qty;
     } else {
       cart.items.push({
         itemId,
@@ -37,7 +47,7 @@ export const addToCart = async function (req, res) {
         restaurantId,
         price,
         image,
-        quantity: 1,
+        quantity: qty,
       });
     }
 

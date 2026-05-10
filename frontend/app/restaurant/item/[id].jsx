@@ -12,6 +12,7 @@ import {
 import { useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+import { getItemImageUrl } from "../../../utils/helpers";
 import restaurants from "../../../lib/restaurants";
 import { useCart } from "../../../context/CartContext";
 
@@ -49,7 +50,7 @@ export default function ItemDetails() {
         restaurant: restaurant.name,
         restaurantId: restaurant.id,
         price: item.price,
-        image: "",
+        image: getItemImageUrl(item.id),
         quantity: count,
       });
       Alert.alert("Added to Cart", `${item.name} x${count} added.`, [

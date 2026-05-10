@@ -12,7 +12,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuth } from "../context/AuthContext";
-import { capitalize } from "./utils/helpers.js";
+import { capitalize } from "../utils/helpers.js";
 
 const { width, height } = Dimensions.get("window");
 

@@ -5,12 +5,14 @@ import {
   View,
   FlatList,
   TouchableOpacity,
+  Pressable,
   Dimensions,
   ActivityIndicator,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "react-native";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -24,7 +26,8 @@ const DELIVERY_FEE = 3.99;
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function Cart() {
-  const { cart, loading, updateQuantity, clearCart } = useCart();
+  const { cart, loading, updateQuantity, removeFromCart, clearCart } =
+    useCart();
   const { token } = useAuth();
 
   const subtotal = useMemo(
@@ -86,13 +89,30 @@ export default function Cart() {
         ListHeaderComponent={<Text style={styles.pageTitle}>Your Cart</Text>}
         renderItem={({ item }) => (
           <View style={styles.row}>
-            <View style={[styles.itemImage, { backgroundColor: "#f1f3f5" }]}>
-              <Ionicons
-                name="fast-food-outline"
-                size={width * 0.08}
-                color={MUTED}
+            {item.image ? (
+              <Image
+                source={{ uri: item.image }}
+                style={styles.itemImage}
+                resizeMode="cover"
               />
-            </View>
+            ) : (
+              <View
+                style={[
+                  styles.itemImage,
+                  {
+                    backgroundColor: "#f1f3f5",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                ]}
+              >
+                <Ionicons
+                  name="fast-food-outline"
+                  size={width * 0.08}
+                  color={MUTED}
+                />
+              </View>
+            )}
             <View style={styles.itemInfo}>
               <Text style={styles.itemName}>{item.name}</Text>
               <Text style={styles.itemRestaurant}>{item.restaurant}</Text>
@@ -100,20 +120,34 @@ export default function Cart() {
                 ${(item.price * item.quantity).toFixed(2)}
               </Text>
             </View>
-            <View style={styles.qtyCol}>
-              <TouchableOpacity
-                style={styles.qBtn}
-                onPress={() => updateQuantity(item.itemId, item.quantity + 1)}
+            <View style={styles.rowRight}>
+              <View style={styles.qtyCol}>
+                <TouchableOpacity
+                  style={styles.qBtn}
+                  onPress={() => updateQuantity(item.itemId, item.quantity + 1)}
+                >
+                  <Ionicons name="add" size={width * 0.04} color={ACCENT} />
+                </TouchableOpacity>
+                <Text style={styles.qText}>{item.quantity}</Text>
+                <TouchableOpacity
+                  style={styles.qBtn}
+                  onPress={() => updateQuantity(item.itemId, item.quantity - 1)}
+                >
+                  <Ionicons name="remove" size={width * 0.04} color={ACCENT} />
+                </TouchableOpacity>
+              </View>
+              <Pressable
+                style={styles.trashBtn}
+                onPress={() => removeFromCart(item.itemId)}
               >
-                <Ionicons name="add" size={width * 0.04} color={ACCENT} />
-              </TouchableOpacity>
-              <Text style={styles.qText}>{item.quantity}</Text>
-              <TouchableOpacity
-                style={styles.qBtn}
-                onPress={() => updateQuantity(item.itemId, item.quantity - 1)}
-              >
-                <Ionicons name="remove" size={width * 0.04} color={ACCENT} />
-              </TouchableOpacity>
+                {({ pressed }) => (
+                  <Ionicons
+                    name="trash-outline"
+                    size={width * 0.055}
+                    color={pressed ? ACCENT : "#adb5bd"}
+                  />
+                )}
+              </Pressable>
             </View>
           </View>
         )}
@@ -132,7 +166,7 @@ export default function Cart() {
               </Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Tax (8.875%)</Text>
+              <Text style={styles.summaryLabel}>Tax</Text>
               <Text style={styles.summaryValue}>${tax.toFixed(2)}</Text>
             </View>
             <View style={styles.divider} />
@@ -204,6 +238,14 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
     color: ACCENT,
     marginTop: height * 0.004,
+  },
+  rowRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: width * 0.02,
+  },
+  trashBtn: {
+    padding: width * 0.02,
   },
   qtyCol: {
     flexDirection: "row",

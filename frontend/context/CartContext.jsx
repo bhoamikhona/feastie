@@ -40,10 +40,13 @@ export function CartProvider({ children }) {
         },
         body: JSON.stringify(item),
       });
+      // console.log("token: ", token);
       const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
       setCart(data.items || []);
     } catch (error) {
       console.error("Failed to add to cart:", error);
+      throw error;
     }
   };
 
@@ -58,6 +61,7 @@ export function CartProvider({ children }) {
         body: JSON.stringify({ quantity }),
       });
       const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
       setCart(data.items || []);
     } catch (error) {
       console.error("Failed to update cart:", error);
@@ -71,6 +75,7 @@ export function CartProvider({ children }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
       setCart(data.items || []);
     } catch (error) {
       console.error("Failed to remove from cart:", error);

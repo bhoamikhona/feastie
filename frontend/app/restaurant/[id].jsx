@@ -6,18 +6,48 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Alert,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
 import restaurants from "../../lib/restaurants";
+import { useCart } from "../../context/CartContext";
+import { getItemImageUrl } from "../../utils/helpers";
 
 const { width, height } = Dimensions.get("window");
 
 export default function RestaurantDetails() {
   const { id } = useLocalSearchParams();
+  const { addToCart } = useCart();
+  const [addingId, setAddingId] = useState(null);
+
   const restaurant = restaurants.find((r) => r.id === id);
 
   if (!restaurant) return null;
+
+  const handleQuickAdd = async (item) => {
+    try {
+      setAddingId(item.id);
+      await addToCart({
+        itemId: item.id,
+        name: item.name,
+        restaurant: restaurant.name,
+        restaurantId: restaurant.id,
+        price: item.price,
+        image: getItemImageUrl(item.id),
+        quantity: 1,
+      });
+      Alert.alert("Added to Cart", `${item.name} added.`, [
+        { text: "Continue", style: "cancel" },
+        { text: "View Cart", onPress: () => router.push("/(tabs)/cart") },
+      ]);
+    } catch (error) {
+      Alert.alert("Error", "Failed to add to cart.");
+    } finally {
+      setAddingId(null);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -102,18 +132,21 @@ export default function RestaurantDetails() {
                     ${item.price.toFixed(2)}
                   </Text>
                   <TouchableOpacity
-                    style={styles.addBtn}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/item/[itemId]",
-                        params: {
-                          itemId: item.id,
-                          restaurantId: restaurant.id,
-                        },
-                      })
-                    }
+                    style={[
+                      styles.addBtn,
+                      addingId === item.id && styles.addBtnActive,
+                    ]}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handleQuickAdd(item);
+                    }}
+                    disabled={addingId === item.id}
                   >
-                    <Ionicons name="add" size={width * 0.05} color="#212529" />
+                    <Ionicons
+                      name={addingId === item.id ? "checkmark" : "add"}
+                      size={width * 0.05}
+                      color={addingId === item.id ? "#fff" : "#212529"}
+                    />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -126,13 +159,8 @@ export default function RestaurantDetails() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  heroContainer: {
-    position: "relative",
-  },
+  container: { flex: 1, backgroundColor: "#fff" },
+  heroContainer: { position: "relative" },
   heroImage: {
     width: "100%",
     height: height * 0.32,
@@ -194,10 +222,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  statItem: {
-    flex: 1,
-    alignItems: "center",
-  },
+  statItem: { flex: 1, alignItems: "center" },
   statValue: {
     fontFamily: "PlayfairDisplayBold",
     fontSize: width * 0.052,
@@ -209,11 +234,7 @@ const styles = StyleSheet.create({
     color: "#868e96",
     marginTop: height * 0.003,
   },
-  statDivider: {
-    width: 1,
-    height: height * 0.055,
-    backgroundColor: "#dee2e6",
-  },
+  statDivider: { width: 1, height: height * 0.055, backgroundColor: "#dee2e6" },
   menuItem: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -226,10 +247,7 @@ const styles = StyleSheet.create({
     borderRadius: width * 0.03,
     backgroundColor: "#f1f3f5",
   },
-  menuItemInfo: {
-    flex: 1,
-    justifyContent: "flex-start",
-  },
+  menuItemInfo: { flex: 1, justifyContent: "flex-start" },
   menuItemName: {
     fontFamily: "PlayfairDisplayBold",
     fontSize: width * 0.042,
@@ -261,4 +279,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  addBtnActive: { backgroundColor: "#fd7e14" },
 });
