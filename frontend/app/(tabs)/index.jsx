@@ -1,18 +1,43 @@
-import React, { useState } from "react";
-import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import restaurants from "../../lib/restaurants.js";
 import Header from "../../components/home/Header.jsx";
 import SearchBar from "../../components/SearchBar.jsx";
 import CategoryList from "../../components/home/CategoryList.jsx";
 import RestaurantCard from "../../components/home/RestaurantCard.jsx";
 
 const { width, height } = Dimensions.get("window");
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function Home() {
   const [search, setSearch] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const [restaurants, setRestaurants] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/restaurants`);
+        const data = await response.json();
+        setRestaurants(data);
+      } catch (error) {
+        console.error("Failed to fetch restaurants:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRestaurants();
+  }, []);
 
   const filteredRestaurants = restaurants.filter((r) => {
     const matchesFilter =
@@ -55,9 +80,15 @@ export default function Home() {
           />
         )}
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>No restaurants found.</Text>
-          </View>
+          loading ? (
+            <View style={styles.empty}>
+              <ActivityIndicator size="large" color="#fd7e14" />
+            </View>
+          ) : (
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>No restaurants found.</Text>
+            </View>
+          )
         }
       />
     </SafeAreaView>
@@ -68,6 +99,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f9fa",
+  },
+  listContent: {
+    paddingBottom: height * 0.05,
   },
   sectionTitle: {
     fontFamily: "PlayfairDisplayExtraBold",

@@ -20,9 +20,21 @@ export const createOrder = async function (req, res) {
     const tax = parseFloat((subtotal * TAX_RATE).toFixed(2));
     const total = parseFloat((subtotal + DELIVERY_FEE + tax).toFixed(2));
 
+    // Map explicitly to avoid Mongoose subdocument conflicts
+    const items = cart.items.map((item) => ({
+      itemId: item.itemId,
+      name: item.name,
+      restaurant: item.restaurant,
+      restaurantId: item.restaurantId,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+    }));
+    console.log("items to create:", JSON.stringify(items, null, 2));
+
     const order = await Order.create({
       user: req.user._id,
-      items: cart.items,
+      items,
       subtotal: parseFloat(subtotal.toFixed(2)),
       deliveryFee: DELIVERY_FEE,
       tax,
@@ -33,6 +45,7 @@ export const createOrder = async function (req, res) {
     await Cart.findOneAndDelete({ user: req.user._id });
     return res.status(201).json(order);
   } catch (error) {
+    console.error("Order error:", error);
     return res.status(500).json({ message: error.message });
   }
 };

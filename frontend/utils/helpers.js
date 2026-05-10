@@ -1,11 +1,6 @@
-export const capitalize = function (word) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
-};
-
 const BASE_URL =
   "https://raw.githubusercontent.com/bhoamikhona/feastie/main/frontend/assets/images";
 
-// Maps local require() item images to GitHub raw URLs by item ID
 const ITEM_IMAGE_URLS = {
   item_0001: `${BASE_URL}/menus/pizza-express/margherita.jpg`,
   item_0002: `${BASE_URL}/menus/pizza-express/american-hot.jpg`,
@@ -62,3 +57,11 @@ const ITEM_IMAGE_URLS = {
 };
 
 export const getItemImageUrl = (itemId) => ITEM_IMAGE_URLS[itemId] || "";
+
+export const capitalize = (str) => {
+  if (!str) return "";
+  return str
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+};

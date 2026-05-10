@@ -20,7 +20,11 @@ export default function RestaurantCard({ item, onPress }) {
     >
       <View style={styles.imageContainer}>
         <Image
-          source={item.images.cover}
+          source={
+            typeof item.images.cover === "string"
+              ? { uri: item.images.cover }
+              : item.images.cover
+          }
           style={styles.cardImage}
           resizeMode="cover"
         />

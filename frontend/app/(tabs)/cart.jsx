@@ -42,7 +42,10 @@ export default function Cart() {
     try {
       const response = await fetch(`${API_URL}/api/orders`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);

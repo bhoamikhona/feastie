@@ -1,10 +1,27 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Dimensions } from "react-native";
+import { Dimensions, View, Text, StyleSheet } from "react-native";
+import { useCart } from "../../context/CartContext";
 
 const { width, height } = Dimensions.get("window");
 
-export default function AuthLayout() {
+function CartIcon({ color }) {
+  const { cartCount } = useCart();
+  return (
+    <View>
+      <Ionicons name="cart-outline" size={width * 0.065} color={color} />
+      {cartCount > 0 && (
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>
+            {cartCount > 99 ? "99+" : cartCount}
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
@@ -35,7 +52,6 @@ export default function AuthLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="search"
         options={{
@@ -49,17 +65,13 @@ export default function AuthLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="cart"
         options={{
           title: "Cart",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="cart-outline" size={width * 0.065} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <CartIcon color={color} />,
         }}
       />
-
       <Tabs.Screen
         name="profile"
         options={{
@@ -76,3 +88,23 @@ export default function AuthLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  badge: {
+    position: "absolute",
+    top: -4,
+    right: -6,
+    backgroundColor: "#fd7e14",
+    borderRadius: 999,
+    minWidth: 16,
+    height: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 3,
+  },
+  badgeText: {
+    color: "#fff",
+    fontSize: 9,
+    fontFamily: "MontserratBold",
+  },
+});

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ const { width, height } = Dimensions.get("window");
 const ACCENT = "#fd7e14";
 const MUTED = "#868e96";
 const BORDER = "#f1f3f5";
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 function StatItem({ label, value }) {
   return (
@@ -53,9 +54,26 @@ function SettingsRow({ icon, label, onPress, trailing }) {
 
 export default function Profile() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const [notificationsOn, setNotificationsOn] = useState(true);
   const [darkModeOn, setDarkModeOn] = useState(false);
+  const [orderCount, setOrderCount] = useState(0);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/orders`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+        setOrderCount(Array.isArray(data) ? data.length : 0);
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+      }
+    };
+
+    if (token) fetchOrders();
+  }, [token]);
 
   const initials = user?.name
     ? user.name
@@ -93,14 +111,12 @@ export default function Profile() {
               <Text style={styles.avatarInitials}>{initials}</Text>
             </View>
           </View>
-          <Text style={styles.userName}>
-            {`${user?.name.charAt(0).toUpperCase()}${user?.name.slice(1)}`}
-          </Text>
+          <Text style={styles.userName}>{user?.name}</Text>
           <Text style={styles.userEmail}>{user?.email}</Text>
         </View>
 
         <View style={styles.statsCard}>
-          <StatItem label="Orders" value={0} />
+          <StatItem label="Orders" value={orderCount} />
           <View style={styles.statDivider} />
           <StatItem label="Favorites" value={0} />
           <View style={styles.statDivider} />
@@ -115,6 +131,11 @@ export default function Profile() {
             onPress={() => router.push("/account")}
           />
           <SettingsRow
+            icon="receipt-outline"
+            label="Order History"
+            onPress={() => router.push("/orders")}
+          />
+          <SettingsRow
             icon="notifications-outline"
             label="Notifications"
             onPress={() => setNotificationsOn((p) => !p)}
@@ -124,6 +145,7 @@ export default function Profile() {
                 onValueChange={setNotificationsOn}
                 trackColor={{ false: "#adb5bd", true: ACCENT }}
                 thumbColor="#fff"
+                ios_backgroundColor="#adb5bd"
               />
             }
           />
@@ -137,6 +159,7 @@ export default function Profile() {
                 onValueChange={setDarkModeOn}
                 trackColor={{ false: "#adb5bd", true: ACCENT }}
                 thumbColor="#fff"
+                ios_backgroundColor="#adb5bd"
               />
             }
           />

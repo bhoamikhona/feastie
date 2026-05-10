@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import cartRoutes from "./routes/cart.js";
 import orderRoutes from "./routes/orders.js";
+import restaurantRoutes from "./routes/restaurants.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/restaurants", restaurantRoutes);
 
 app.get("/", (req, res) => res.json({ message: "Feastie API is running" }));
 
