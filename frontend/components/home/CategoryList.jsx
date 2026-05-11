@@ -7,6 +7,7 @@ import {
   Dimensions,
 } from "react-native";
 import data from "../../lib/data.js";
+import { useFavorites } from "../../context/FavoritesContext";
 
 const { width, height } = Dimensions.get("window");
 const emojis = data.emojis;
@@ -18,7 +19,8 @@ export default function CategoryList({
   selectedFilter,
   onSelect,
 }) {
-  const allChips = ["All", ...categories, ...cuisines, ...types];
+  const { favorites } = useFavorites();
+  const allChips = ["All", "Saved", ...categories, ...cuisines, ...types];
   const total = allChips.length;
   const rowSize = Math.ceil(total / 3);
   const row1 = allChips.slice(0, rowSize);
@@ -35,7 +37,7 @@ export default function CategoryList({
         style={[styles.chip, isActive && styles.chipActive]}
       >
         <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
-          {emojis[item]} {item}
+          {item === "Saved" ? "🧡" : emojis[item]} {item}
         </Text>
       </TouchableHighlight>
     );

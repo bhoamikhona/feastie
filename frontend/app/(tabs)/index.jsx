@@ -13,6 +13,7 @@ import Header from "../../components/home/Header.jsx";
 import SearchBar from "../../components/SearchBar.jsx";
 import CategoryList from "../../components/home/CategoryList.jsx";
 import RestaurantCard from "../../components/home/RestaurantCard.jsx";
+import { useFavorites } from "../../context/FavoritesContext";
 
 const { width, height } = Dimensions.get("window");
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -22,6 +23,7 @@ export default function Home() {
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { favorites } = useFavorites();
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -42,6 +44,7 @@ export default function Home() {
   const filteredRestaurants = restaurants.filter((r) => {
     const matchesFilter =
       selectedFilter === "All" ||
+      (selectedFilter === "Saved" && favorites.includes(r.id)) ||
       r.category === selectedFilter ||
       r.cuisine === selectedFilter ||
       r.type.includes(selectedFilter);

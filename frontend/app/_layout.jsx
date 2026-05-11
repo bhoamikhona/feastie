@@ -15,7 +15,17 @@ function RootLayoutNav() {
     }
   }, [user, loading]);
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="(auth)/login" options={{ gestureEnabled: false }} />
+      <Stack.Screen
+        name="(auth)/register"
+        options={{ gestureEnabled: false }}
+      />
+      <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
+    </Stack>
+  );
 }
 
 export default function RootLayout() {
