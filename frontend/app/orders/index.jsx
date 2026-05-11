@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -33,22 +33,30 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/orders`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
-        setOrders(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Failed to fetch orders:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const intervalRef = useRef(null);
 
-    fetchOrders();
+  const fetchOrders = async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders(true);
+
+    // Poll every 4 seconds to pick up status changes from detail screen
+    intervalRef.current = setInterval(() => fetchOrders(false), 4000);
+
+    return () => clearInterval(intervalRef.current);
   }, []);
 
   const formatDate = (dateStr) =>

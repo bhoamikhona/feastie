@@ -20,7 +20,6 @@ export const createOrder = async function (req, res) {
     const tax = parseFloat((subtotal * TAX_RATE).toFixed(2));
     const total = parseFloat((subtotal + DELIVERY_FEE + tax).toFixed(2));
 
-    // Map explicitly to avoid Mongoose subdocument conflicts
     const items = cart.items.map((item) => ({
       itemId: item.itemId,
       name: item.name,
@@ -30,7 +29,6 @@ export const createOrder = async function (req, res) {
       quantity: item.quantity,
       image: item.image,
     }));
-    console.log("items to create:", JSON.stringify(items, null, 2));
 
     const order = await Order.create({
       user: req.user._id,
@@ -75,5 +73,20 @@ export const getOrderById = async function (req, res) {
     return res.json(order);
   } catch (error) {
     return res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateOrderStatus = async function (req, res) {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (order.user.toString() !== req.user._id.toString())
+      return res.status(401).json({ message: "Not authorized" });
+
+    order.status = req.body.status;
+    await order.save();
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

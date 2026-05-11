@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Dimensions,
   Image,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
@@ -21,13 +22,44 @@ const BORDER = "#f1f3f5";
 const MUTED = "#868e96";
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-const STATUS_COLORS = {
-  pending: "#868e96",
-  confirmed: "#fd7e14",
-  preparing: "#f59f00",
-  out_for_delivery: "#1971c2",
-  delivered: "#2f9e44",
-  cancelled: "#e03131",
+const STATUS_SEQUENCE = [
+  "pending",
+  "confirmed",
+  "preparing",
+  "out_for_delivery",
+  "delivered",
+];
+
+const STATUS_CONFIG = {
+  pending: { color: "#868e96", icon: "time-outline", label: "Pending" },
+  confirmed: {
+    color: "#fd7e14",
+    icon: "checkmark-circle-outline",
+    label: "Confirmed",
+  },
+  preparing: {
+    color: "#f59f00",
+    icon: "restaurant-outline",
+    label: "Preparing",
+  },
+  out_for_delivery: {
+    color: "#1971c2",
+    icon: "bicycle-outline",
+    label: "Out for Delivery",
+  },
+  delivered: {
+    color: "#2f9e44",
+    icon: "checkmark-done-circle-outline",
+    label: "Delivered",
+  },
+};
+
+const STATUS_MESSAGES = {
+  pending: "Your order has been received.",
+  confirmed: "Restaurant has confirmed your order!",
+  preparing: "The kitchen is preparing your food.",
+  out_for_delivery: "Your order is on its way!",
+  delivered: "Your order has been delivered. Enjoy!",
 };
 
 export default function OrderDetail() {
@@ -35,24 +67,83 @@ export default function OrderDetail() {
   const { token } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const intervalRef = useRef(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/orders/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
-        setOrder(data);
-      } catch (error) {
-        console.error("Failed to fetch order:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchOrder();
+    return () => clearInterval(intervalRef.current);
   }, [id]);
+
+  useEffect(() => {
+    if (order && order.status !== "delivered" && order.status !== "cancelled") {
+      startSimulation();
+    }
+    return () => clearInterval(intervalRef.current);
+  }, [order?.status]);
+
+  useEffect(() => {
+    if (order && order.status !== "delivered") {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.15,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+    } else {
+      pulseAnim.setValue(1);
+    }
+  }, [order?.status]);
+
+  const fetchOrder = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/orders/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      setOrder(data);
+    } catch (error) {
+      console.error("Failed to fetch order:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const startSimulation = () => {
+    clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(async () => {
+      setOrder((prev) => {
+        if (!prev) return prev;
+        const currentIndex = STATUS_SEQUENCE.indexOf(prev.status);
+        if (currentIndex === -1 || currentIndex >= STATUS_SEQUENCE.length - 1) {
+          clearInterval(intervalRef.current);
+          return prev;
+        }
+        const nextStatus = STATUS_SEQUENCE[currentIndex + 1];
+
+        // Update backend
+        fetch(`${API_URL}/api/orders/${id}/status`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: nextStatus }),
+        });
+
+        if (nextStatus === "delivered") clearInterval(intervalRef.current);
+        return { ...prev, status: nextStatus };
+      });
+    }, 4000);
+  };
 
   const formatDate = (dateStr) =>
     new Date(dateStr).toLocaleDateString("en-US", {
@@ -63,9 +154,6 @@ export default function OrderDetail() {
       hour: "2-digit",
       minute: "2-digit",
     });
-
-  const formatStatus = (status) =>
-    status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
   if (loading) {
     return (
@@ -93,6 +181,9 @@ export default function OrderDetail() {
 
   if (!order) return null;
 
+  const config = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
+  const isDelivered = order.status === "delivered";
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}>
@@ -114,26 +205,74 @@ export default function OrderDetail() {
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <View>
-            <View style={styles.statusCard}>
-              <View
+            {/* Tracking card */}
+            <View
+              style={[
+                styles.trackingCard,
+                { borderColor: config.color + "40" },
+              ]}
+            >
+              <Animated.View
                 style={[
-                  styles.statusBadge,
-                  { backgroundColor: STATUS_COLORS[order.status] + "20" },
+                  styles.trackingIconWrapper,
+                  {
+                    backgroundColor: config.color + "20",
+                    transform: [{ scale: isDelivered ? 1 : pulseAnim }],
+                  },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.statusText,
-                    { color: STATUS_COLORS[order.status] },
-                  ]}
-                >
-                  {formatStatus(order.status)}
-                </Text>
-              </View>
+                <Ionicons
+                  name={config.icon}
+                  size={width * 0.1}
+                  color={config.color}
+                />
+              </Animated.View>
+              <Text style={[styles.trackingStatus, { color: config.color }]}>
+                {config.label}
+              </Text>
+              <Text style={styles.trackingMessage}>
+                {STATUS_MESSAGES[order.status]}
+              </Text>
               <Text style={styles.orderDate}>
                 {formatDate(order.createdAt)}
               </Text>
+              {/* Progress bar */}
+              <View style={styles.progressRow}>
+                {STATUS_SEQUENCE.map((s, idx) => {
+                  const currentIdx = STATUS_SEQUENCE.indexOf(order.status);
+                  const done = idx <= currentIdx;
+                  return (
+                    <View key={s} style={styles.progressStep}>
+                      <View
+                        style={[
+                          styles.progressDot,
+                          {
+                            backgroundColor: done
+                              ? STATUS_CONFIG[s].color
+                              : "#dee2e6",
+                          },
+                        ]}
+                      />
+                      {idx < STATUS_SEQUENCE.length - 1 && (
+                        <View
+                          style={[
+                            styles.progressLine,
+                            {
+                              backgroundColor:
+                                idx < currentIdx
+                                  ? STATUS_CONFIG[STATUS_SEQUENCE[idx + 1]]
+                                      .color
+                                  : "#dee2e6",
+                            },
+                          ]}
+                        />
+                      )}
+                    </View>
+                  );
+                })}
+              </View>
             </View>
+
             <Text style={styles.sectionTitle}>Items</Text>
           </View>
         }
@@ -251,22 +390,60 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.05,
     paddingBottom: height * 0.05,
   },
-  statusCard: {
+  trackingCard: {
+    borderRadius: width * 0.04,
+    borderWidth: 1.5,
+    padding: width * 0.05,
     alignItems: "center",
-    paddingVertical: height * 0.02,
-    marginBottom: height * 0.01,
+    marginBottom: height * 0.02,
   },
-  statusBadge: {
+  trackingIconWrapper: {
+    width: width * 0.2,
+    height: width * 0.2,
     borderRadius: 999,
-    paddingHorizontal: width * 0.05,
-    paddingVertical: height * 0.008,
-    marginBottom: height * 0.008,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: height * 0.012,
   },
-  statusText: { fontFamily: "MontserratSemiBold", fontSize: width * 0.035 },
+  trackingStatus: {
+    fontFamily: "PlayfairDisplayBold",
+    fontSize: width * 0.052,
+    marginBottom: height * 0.006,
+  },
+  trackingMessage: {
+    fontFamily: "MontserratRegular",
+    fontSize: width * 0.033,
+    color: MUTED,
+    textAlign: "center",
+    marginBottom: height * 0.006,
+  },
   orderDate: {
     fontFamily: "MontserratRegular",
-    fontSize: width * 0.032,
+    fontSize: width * 0.028,
     color: MUTED,
+    marginBottom: height * 0.018,
+  },
+  progressRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: height * 0.018,
+    width: "100%",
+    paddingLeft: width * 0.115,
+  },
+  progressStep: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  progressDot: {
+    width: width * 0.032,
+    height: width * 0.032,
+    borderRadius: 999,
+    flexShrink: 0,
+  },
+  progressLine: {
+    flex: 1,
+    height: 2,
   },
   sectionTitle: {
     fontFamily: "PlayfairDisplayBold",
