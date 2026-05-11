@@ -8,10 +8,14 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { BADGE_COLORS } from "../../lib/data";
+import { useFavorites } from "../../context/FavoritesContext";
 
 const { width, height } = Dimensions.get("window");
 
 export default function RestaurantCard({ item, onPress }) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorited = isFavorite(item.id);
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -28,6 +32,20 @@ export default function RestaurantCard({ item, onPress }) {
           style={styles.cardImage}
           resizeMode="cover"
         />
+        <TouchableOpacity
+          style={styles.heartBtn}
+          onPress={(e) => {
+            e.stopPropagation();
+            toggleFavorite(item.id);
+          }}
+          activeOpacity={0.8}
+        >
+          <Ionicons
+            name={favorited ? "heart" : "heart-outline"}
+            size={width * 0.055}
+            color={favorited ? "#fd7e14" : "#fff"}
+          />
+        </TouchableOpacity>
         <View style={styles.timePill}>
           <Ionicons name="time-outline" size={width * 0.035} color="#000" />
           <Text style={styles.timeText}>
@@ -87,6 +105,14 @@ const styles = StyleSheet.create({
     width: "100%",
     height: height * 0.22,
     backgroundColor: "#f1f3f5",
+  },
+  heartBtn: {
+    position: "absolute",
+    top: height * 0.015,
+    right: width * 0.04,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    borderRadius: 999,
+    padding: width * 0.02,
   },
   timePill: {
     position: "absolute",

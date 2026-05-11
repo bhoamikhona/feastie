@@ -12,6 +12,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
+import { useFavorites } from "../../context/FavoritesContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -55,6 +56,7 @@ function SettingsRow({ icon, label, onPress, trailing }) {
 export default function Profile() {
   const router = useRouter();
   const { user, token, logout } = useAuth();
+  const { favorites } = useFavorites();
   const [notificationsOn, setNotificationsOn] = useState(true);
   const [darkModeOn, setDarkModeOn] = useState(false);
   const [orderCount, setOrderCount] = useState(0);
@@ -118,7 +120,7 @@ export default function Profile() {
         <View style={styles.statsCard}>
           <StatItem label="Orders" value={orderCount} />
           <View style={styles.statDivider} />
-          <StatItem label="Favorites" value={0} />
+          <StatItem label="Favorites" value={favorites.length} />
           <View style={styles.statDivider} />
           <StatItem label="Saved" value={0} />
         </View>

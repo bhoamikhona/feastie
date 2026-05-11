@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
       state: { type: String, default: "" },
       zip: { type: String, default: "" },
     },
+    favorites: [{ type: String }],
     payment: {
       cardHolder: { type: String, default: "" },
       cardNumber: { type: String, default: "" },
