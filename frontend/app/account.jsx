@@ -5,24 +5,32 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
   Dimensions,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuth } from "../context/AuthContext";
-import { capitalize } from "../utils/helpers.js";
 
 const { width, height } = Dimensions.get("window");
 
 const ACCENT = "#fd7e14";
 const MUTED = "#adb5bd";
 const BORDER = "#f1f3f5";
-
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-function DetailRow({ label, value, icon }) {
+function EditableRow({
+  icon,
+  label,
+  value,
+  onChangeText,
+  editable,
+  keyboardType,
+}) {
   return (
     <View style={styles.detailRow}>
       <View style={styles.detailLeft}>
@@ -34,18 +42,51 @@ function DetailRow({ label, value, icon }) {
         />
         <Text style={styles.detailLabel}>{label}</Text>
       </View>
-      <Text style={styles.detailValue} numberOfLines={1}>
-        {value || "—"}
-      </Text>
+      {editable ? (
+        <TextInput
+          style={styles.detailInput}
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType={keyboardType || "default"}
+          autoCapitalize="none"
+          placeholderTextColor={MUTED}
+          placeholder="—"
+        />
+      ) : (
+        <Text style={styles.detailValue} numberOfLines={1}>
+          {value || "—"}
+        </Text>
+      )}
     </View>
   );
 }
 
-function SectionHeader({ title, onEdit }) {
+function SectionHeader({ title, editing, onEdit, onSave, onCancel, saving }) {
   return (
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
-      {onEdit && (
+      {editing ? (
+        <View style={styles.editActions}>
+          <TouchableOpacity
+            onPress={onCancel}
+            activeOpacity={0.6}
+            style={styles.cancelBtn}
+          >
+            <Text style={styles.cancelLink}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onSave}
+            activeOpacity={0.6}
+            disabled={saving}
+          >
+            {saving ? (
+              <ActivityIndicator size="small" color={ACCENT} />
+            ) : (
+              <Text style={styles.saveLink}>Save</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      ) : (
         <TouchableOpacity onPress={onEdit} activeOpacity={0.6}>
           <Text style={styles.editLink}>Edit</Text>
         </TouchableOpacity>
@@ -60,23 +101,110 @@ export default function Account() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/auth/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
-        setProfile(data);
-      } catch (error) {
-        Alert.alert("Error", "Failed to load account details.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Personal info edit state
+  const [editingPersonal, setEditingPersonal] = useState(false);
+  const [savingPersonal, setSavingPersonal] = useState(false);
+  const [personalForm, setPersonalForm] = useState({ name: "", phone: "" });
 
+  // Address edit state
+  const [editingAddress, setEditingAddress] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [addressForm, setAddressForm] = useState({
+    street: "",
+    apt: "",
+    city: "",
+    state: "",
+    zip: "",
+  });
+
+  useEffect(() => {
     fetchProfile();
   }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      setProfile(data);
+      setPersonalForm({ name: data.name || "", phone: data.phone || "" });
+      setAddressForm({
+        street: data.address?.street || "",
+        apt: data.address?.apt || "",
+        city: data.address?.city || "",
+        state: data.address?.state || "",
+        zip: data.address?.zip || "",
+      });
+    } catch (error) {
+      Alert.alert("Error", "Failed to load account details.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const savePersonal = async () => {
+    try {
+      setSavingPersonal(true);
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: personalForm.name,
+          phone: personalForm.phone,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setProfile((prev) => ({ ...prev, name: data.name, phone: data.phone }));
+      setEditingPersonal(false);
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setSavingPersonal(false);
+    }
+  };
+
+  const saveAddress = async () => {
+    try {
+      setSavingAddress(true);
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ address: addressForm }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setProfile((prev) => ({ ...prev, address: data.address }));
+      setEditingAddress(false);
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
+  const cancelPersonal = () => {
+    setPersonalForm({ name: profile?.name || "", phone: profile?.phone || "" });
+    setEditingPersonal(false);
+  };
+
+  const cancelAddress = () => {
+    setAddressForm({
+      street: profile?.address?.street || "",
+      apt: profile?.address?.apt || "",
+      city: profile?.address?.city || "",
+      state: profile?.address?.state || "",
+      zip: profile?.address?.zip || "",
+    });
+    setEditingAddress(false);
+  };
 
   if (loading) {
     return (
@@ -86,9 +214,10 @@ export default function Account() {
     );
   }
 
-  const fullAddress = profile?.address
+  const fullAddress = profile?.address?.street
     ? [
         profile.address.street,
+        profile.address.apt,
         profile.address.city,
         `${profile.address.state} ${profile.address.zip}`,
       ]
@@ -97,65 +226,122 @@ export default function Account() {
     : "—";
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-          activeOpacity={0.6}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+            activeOpacity={0.6}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={width * 0.065}
+              color="#1E1E1E"
+            />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Account Details</Text>
+          <View style={styles.backButton} />
+        </View>
+
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          <Ionicons name="chevron-back" size={width * 0.065} color="#1E1E1E" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Account Details</Text>
-        <View style={styles.backButton} />
+          {/* Personal Information */}
+          <SectionHeader
+            title="Personal Information"
+            editing={editingPersonal}
+            onEdit={() => setEditingPersonal(true)}
+            onSave={savePersonal}
+            onCancel={cancelPersonal}
+            saving={savingPersonal}
+          />
+          <View style={styles.card}>
+            <EditableRow
+              icon="person-outline"
+              label="Name"
+              value={personalForm.name}
+              onChangeText={(v) => setPersonalForm((p) => ({ ...p, name: v }))}
+              editable={editingPersonal}
+            />
+            <EditableRow
+              icon="mail-outline"
+              label="Email"
+              value={profile?.email}
+              editable={false}
+            />
+            <EditableRow
+              icon="call-outline"
+              label="Phone"
+              value={personalForm.phone}
+              onChangeText={(v) => setPersonalForm((p) => ({ ...p, phone: v }))}
+              editable={editingPersonal}
+              keyboardType="phone-pad"
+            />
+          </View>
+
+          {/* Delivery Address */}
+          <SectionHeader
+            title="Delivery Address"
+            editing={editingAddress}
+            onEdit={() => setEditingAddress(true)}
+            onSave={saveAddress}
+            onCancel={cancelAddress}
+            saving={savingAddress}
+          />
+          <View style={styles.card}>
+            <EditableRow
+              icon="home-outline"
+              label="Street"
+              value={addressForm.street}
+              onChangeText={(v) => setAddressForm((p) => ({ ...p, street: v }))}
+              editable={editingAddress}
+            />
+            <EditableRow
+              icon="business-outline"
+              label="Apt"
+              value={addressForm.apt}
+              onChangeText={(v) => setAddressForm((p) => ({ ...p, apt: v }))}
+              editable={editingAddress}
+            />
+            <EditableRow
+              icon="location-outline"
+              label="City"
+              value={addressForm.city}
+              onChangeText={(v) => setAddressForm((p) => ({ ...p, city: v }))}
+              editable={editingAddress}
+            />
+            <EditableRow
+              icon="map-outline"
+              label="State"
+              value={addressForm.state}
+              onChangeText={(v) => setAddressForm((p) => ({ ...p, state: v }))}
+              editable={editingAddress}
+            />
+            <EditableRow
+              icon="mail-unread-outline"
+              label="Zip"
+              value={addressForm.zip}
+              onChangeText={(v) => setAddressForm((p) => ({ ...p, zip: v }))}
+              editable={editingAddress}
+              keyboardType="numeric"
+            />
+            {!editingAddress && (
+              <EditableRow
+                icon="navigate-outline"
+                label="Full"
+                value={fullAddress}
+                editable={false}
+              />
+            )}
+          </View>
+        </ScrollView>
       </View>
-
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <SectionHeader
-          title="Personal Information"
-          onEdit={() => Alert.alert("Edit", "Coming soon.")}
-        />
-        <View style={styles.card}>
-          <DetailRow
-            icon="person-outline"
-            label="Name"
-            value={capitalize(profile?.name)}
-          />
-          <DetailRow icon="mail-outline" label="Email" value={profile?.email} />
-          <DetailRow icon="call-outline" label="Phone" value={profile?.phone} />
-        </View>
-
-        <SectionHeader
-          title="Delivery Address"
-          onEdit={() => Alert.alert("Edit", "Coming soon.")}
-        />
-        <View style={styles.card}>
-          <DetailRow
-            icon="home-outline"
-            label="Street"
-            value={profile?.address?.street}
-          />
-          <DetailRow
-            icon="location-outline"
-            label="City"
-            value={profile?.address?.city}
-          />
-          <DetailRow
-            icon="map-outline"
-            label="State"
-            value={
-              profile?.address?.state
-                ? `${profile.address.state} ${profile.address.zip}`
-                : "—"
-            }
-          />
-          <DetailRow icon="navigate-outline" label="Full" value={fullAddress} />
-        </View>
-      </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -197,6 +383,22 @@ const styles = StyleSheet.create({
     fontSize: width * 0.032,
     color: ACCENT,
   },
+  editActions: {
+    flexDirection: "row",
+    gap: width * 0.04,
+    alignItems: "center",
+  },
+  cancelLink: {
+    fontFamily: "MontserratSemiBold",
+    fontSize: width * 0.032,
+    color: MUTED,
+  },
+  saveLink: {
+    fontFamily: "MontserratSemiBold",
+    fontSize: width * 0.032,
+    color: ACCENT,
+  },
+  cancelBtn: {},
   card: {
     backgroundColor: "#fff",
     marginHorizontal: width * 0.05,
@@ -229,5 +431,17 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: "right",
     marginLeft: width * 0.04,
+  },
+  detailInput: {
+    fontFamily: "MontserratMedium",
+    fontSize: width * 0.035,
+    color: "#1E1E1E",
+    flexShrink: 1,
+    textAlign: "right",
+    marginLeft: width * 0.04,
+    borderBottomWidth: 1,
+    borderBottomColor: ACCENT,
+    minWidth: width * 0.3,
+    paddingVertical: 2,
   },
 });

@@ -76,7 +76,15 @@ export const updateUserProfile = async function (req, res) {
 
     if (name) user.name = name;
     if (phone) user.phone = phone;
-    if (address) user.address = address;
+    if (address) {
+      user.address = {
+        street: address.street ?? user.address.street,
+        apt: address.apt ?? user.address.apt,
+        city: address.city ?? user.address.city,
+        state: address.state ?? user.address.state,
+        zip: address.zip ?? user.address.zip,
+      };
+    }
 
     const updated = await user.save();
 
