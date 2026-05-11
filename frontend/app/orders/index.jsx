@@ -51,14 +51,12 @@ export default function Orders() {
     fetchOrders();
   }, []);
 
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
+  const formatDate = (dateStr) =>
+    new Date(dateStr).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
-  };
 
   const formatStatus = (status) =>
     status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -88,7 +86,11 @@ export default function Orders() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
-            <View style={styles.orderCard}>
+            <TouchableOpacity
+              style={styles.orderCard}
+              onPress={() => router.push(`/orders/order/${item._id}`)}
+              activeOpacity={0.75}
+            >
               <View style={styles.orderHeader}>
                 <Text style={styles.orderDate}>
                   {formatDate(item.createdAt)}
@@ -121,11 +123,18 @@ export default function Orders() {
 
               <View style={styles.orderFooter}>
                 <Text style={styles.orderTotal}>${item.total.toFixed(2)}</Text>
-                <Text style={styles.orderItemCount}>
-                  {item.items.reduce((sum, i) => sum + i.quantity, 0)} items
-                </Text>
+                <View style={styles.chevronRow}>
+                  <Text style={styles.orderItemCount}>
+                    {item.items.reduce((sum, i) => sum + i.quantity, 0)} items
+                  </Text>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={width * 0.04}
+                    color={MUTED}
+                  />
+                </View>
               </View>
-            </View>
+            </TouchableOpacity>
           )}
           ListEmptyComponent={
             <View style={styles.center}>
@@ -212,6 +221,7 @@ const styles = StyleSheet.create({
     fontSize: width * 0.042,
     color: ACCENT,
   },
+  chevronRow: { flexDirection: "row", alignItems: "center", gap: width * 0.01 },
   orderItemCount: {
     fontFamily: "MontserratRegular",
     fontSize: width * 0.032,
