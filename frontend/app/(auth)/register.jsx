@@ -51,7 +51,7 @@ export default function Register() {
         <Image source={Logo} style={styles.img} />
       </View>
       <View style={styles.middleContainer}>
-        <Text style={styles.title}>Welcome to Feastie!</Text>
+        <Text style={styles.title}>Welcome to Feastie</Text>
         <TextInput
           value={name}
           onChangeText={setName}

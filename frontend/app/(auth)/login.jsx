@@ -44,7 +44,7 @@ export default function Login() {
         <Image source={Logo} style={styles.img} />
       </View>
       <View style={styles.middleContainer}>
-        <Text style={styles.title}>Welcome to Feastie!</Text>
+        <Text style={styles.title}>Welcome to Feastie</Text>
         <TextInput
           value={email}
           onChangeText={setEmail}

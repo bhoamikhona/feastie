@@ -1,83 +1,107 @@
-import { StyleSheet, Text, View, Image } from "react-native";
-import { Link } from "expo-router";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
+import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Home() {
+const { width, height } = Dimensions.get("window");
+
+export default function Index() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Feastie!</Text>
-
-      <Link style={styles.link} href="/login">
-        Login Page
-      </Link>
-
-      <Link style={styles.link} href="/register">
-        Register Page
-      </Link>
-
-      <Link style={styles.link} href="/(tabs)">
-        Home Page
-      </Link>
-
-      <Link style={styles.link} href="/search">
-        Search Page
-      </Link>
-
-      <Link style={styles.link} href="/cart">
-        Cart Page
-      </Link>
-
-      <Link style={styles.link} href="/profile">
-        Profile Page
-      </Link>
-
-      <View style={{ marginTop: 50 }}>
-        <Text style={styles.title}>Testing Fonts</Text>
-
-        <Text style={styles.playfair}>Feastie</Text>
-
-        <Text style={styles.ephesis}>Delicious moments</Text>
-
-        <Text style={styles.montserratRegular}>Burgers • Pizza • Wraps</Text>
-
-        <Text style={styles.montserratMedium}>Order Now</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.topSection}>
+        <Image
+          source={require("../assets/images/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.appName}>Feastie</Text>
+        <Text style={styles.tagline}>Delicious moments, delivered.</Text>
       </View>
-    </View>
+
+      <View style={styles.bottomSection}>
+        <TouchableOpacity
+          style={styles.registerBtn}
+          onPress={() => router.push("/(auth)/register")}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.registerBtnText}>Create an Account</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.loginBtn}
+          onPress={() => router.push("/(auth)/login")}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.loginBtnText}>Log In</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f7f7f7",
+  },
+  topSection: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: width * 0.1,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
+  logo: {
+    width: 220,
+    height: 220,
+    //marginBottom: height * 0.02,
   },
-  link: {
-    fontSize: 18,
-    borderBottomColor: "black",
-    borderBottomWidth: 1,
-    marginVertical: 5,
-  },
-  playfair: {
-    fontFamily: "PlayfairDisplayBold",
-    fontSize: 40,
-  },
-
-  ephesis: {
+  appName: {
     fontFamily: "EphesisRegular",
-    fontSize: 32,
+    fontSize: width * 0.18,
+    color: "#212529",
+    marginBottom: height * 0.005,
+    width: "100%",
+    textAlign: "center",
   },
-
-  montserratRegular: {
+  tagline: {
     fontFamily: "MontserratRegular",
-    fontSize: 18,
+    fontSize: width * 0.038,
+    color: "#adb5bd",
+    textAlign: "center",
   },
-
-  montserratMedium: {
-    fontFamily: "MontserratMedium",
-    fontSize: 18,
+  bottomSection: {
+    paddingHorizontal: width * 0.08,
+    paddingBottom: height * 0.06,
+    gap: height * 0.015,
+  },
+  registerBtn: {
+    backgroundColor: "#fd7e14",
+    borderRadius: 999,
+    paddingVertical: height * 0.018,
+    alignItems: "center",
+  },
+  registerBtnText: {
+    fontFamily: "MontserratBold",
+    fontSize: width * 0.042,
+    color: "#fff",
+  },
+  loginBtn: {
+    backgroundColor: "#f7f7f7",
+    borderRadius: 999,
+    paddingVertical: height * 0.018,
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "#fd7e14",
+  },
+  loginBtnText: {
+    fontFamily: "MontserratBold",
+    fontSize: width * 0.042,
+    color: "#fd7e14",
   },
 });

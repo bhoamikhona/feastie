@@ -12,8 +12,6 @@ function RootLayoutNav() {
     if (loading) return;
     if (user) {
       router.replace("/(tabs)");
-    } else {
-      router.replace("/(auth)/login");
     }
   }, [user, loading]);
 
