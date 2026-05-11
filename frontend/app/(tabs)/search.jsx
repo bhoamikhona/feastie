@@ -1,15 +1,21 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, View, FlatList, Dimensions } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import restaurants from "../../lib/restaurants.js";
 import SearchBar from "../../components/SearchBar.jsx";
 import { GridSection } from "../../components/GridSection.jsx";
 import RestaurantCard from "../../components/home/RestaurantCard.jsx";
 
-const { width, height } = Dimensions.get("window");
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-// ── Static image maps from assets/images/search/ ─────────────────────────────
+const { width, height } = Dimensions.get("window");
 
 const CATEGORY_IMAGES = {
   Pizza: require("../../assets/images/search/categories/pizza.jpg"),
@@ -34,16 +40,29 @@ const TYPE_IMAGES = {
   Dessert: require("../../assets/images/search/type/dessert.jpg"),
 };
 
-// ── Derived from restaurants.js ───────────────────────────────────────────────
-
-const CATEGORIES = [...new Set(restaurants.map((r) => r.category))];
-const CUISINES = [...new Set(restaurants.map((r) => r.cuisine))];
-const TYPES = [...new Set(restaurants.flatMap((r) => r.type))];
-
-// ── Screen ────────────────────────────────────────────────────────────────────
-
 export default function Search() {
   const [search, setSearch] = useState("");
+  const [restaurants, setRestaurants] = useState([]);
+  const [loadingRestaurants, setLoadingRestaurants] = useState(true);
+
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/restaurants`);
+        const data = await response.json();
+        setRestaurants(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Failed to fetch restaurants:", error);
+      } finally {
+        setLoadingRestaurants(false);
+      }
+    };
+    fetchRestaurants();
+  }, []);
+
+  const CATEGORIES = [...new Set(restaurants.map((r) => r.category))];
+  const CUISINES = [...new Set(restaurants.map((r) => r.cuisine))];
+  const TYPES = [...new Set(restaurants.flatMap((r) => r.type))];
 
   const isSearching = search.trim().length > 0;
 
