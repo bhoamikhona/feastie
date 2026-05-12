@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
 import { useFavorites } from "../../context/FavoritesContext";
+import { capitalize } from "../../utils/helpers.js";
 
 const { width, height } = Dimensions.get("window");
 
@@ -146,7 +147,7 @@ export default function Profile() {
               <Text style={styles.avatarInitials}>{initials}</Text>
             </View>
           </View>
-          <Text style={styles.userName}>{user?.name}</Text>
+          <Text style={styles.userName}>{capitalize(user?.name)}</Text>
           <Text style={styles.userEmail}>{user?.email}</Text>
         </View>
 
