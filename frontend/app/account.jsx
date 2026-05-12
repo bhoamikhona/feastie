@@ -330,14 +330,39 @@ export default function Account() {
               editable={editingAddress}
               keyboardType="numeric"
             />
-            {!editingAddress && (
-              <EditableRow
-                icon="navigate-outline"
-                label="Full"
-                value={fullAddress}
-                editable={false}
-              />
-            )}
+          </View>
+
+          {/* Payment Method */}
+          <SectionHeader
+            title="Payment Method"
+            editing={false}
+            onEdit={() =>
+              Alert.alert("Payment", "Card management coming soon.")
+            }
+          />
+          <View style={styles.card}>
+            <EditableRow
+              icon="card-outline"
+              label="Card"
+              value={
+                profile?.payment?.brand && profile?.payment?.last4
+                  ? `${profile.payment.brand} •••• ${profile.payment.last4}`
+                  : "—"
+              }
+              editable={false}
+            />
+            <EditableRow
+              icon="calendar-outline"
+              label="Expires"
+              value={profile?.payment?.expiry || "—"}
+              editable={false}
+            />
+            <EditableRow
+              icon="person-outline"
+              label="Cardholder"
+              value={profile?.payment?.cardHolder || "—"}
+              editable={false}
+            />
           </View>
         </ScrollView>
       </View>
