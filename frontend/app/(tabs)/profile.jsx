@@ -103,7 +103,7 @@ export default function Profile() {
               });
               if (!response.ok) throw new Error("Failed to delete account");
               await logout();
-              router.replace("/");
+              router.replace("/(auth)/register");
               setTimeout(() => {
                 Alert.alert(
                   "Account Deleted",

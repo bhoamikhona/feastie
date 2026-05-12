@@ -1,6 +1,6 @@
 import { Stack, router } from "expo-router";
 import { useFonts } from "expo-font";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
 import { FavoritesProvider } from "../context/FavoritesContext";
@@ -8,12 +8,9 @@ import { FavoritesProvider } from "../context/FavoritesContext";
 function RootLayoutNav() {
   const { user, loading } = useAuth();
 
-  const hasRedirected = useRef(false);
-
   useEffect(() => {
     if (loading) return;
-    if (user && !hasRedirected.current) {
-      hasRedirected.current = true;
+    if (user) {
       router.replace("/(tabs)");
     }
   }, [user, loading]);

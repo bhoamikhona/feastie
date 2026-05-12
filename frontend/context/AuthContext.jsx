@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
         if (storedToken && storedUser) {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
-          console.log(`token`, storedToken);
+          // console.log(`token`, storedToken);
         }
       } catch (error) {
         console.error("Failed to restore session: ", error);
@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ name, email, password, confirmPassword }),
     });
     const data = await response.json();
-    console.log("Register response: ", response.status, data);
+    // console.log("Register response: ", response.status, data);
 
     if (!response.ok) {
       throw new Error(data.message || "Registration failed");
