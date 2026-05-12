@@ -61,13 +61,15 @@ export const login = async function (req, res) {
       token: generateToken(user._id),
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ message: error.message });
   }
 };
 
 export const getUserProfile = async function (req, res) {
-  return res.json(req.user);
+  const user = await (await import("../models/User.js")).default
+    .findById(req.user._id)
+    .select("-password");
+  return res.json(user);
 };
 
 export const updateUserProfile = async function (req, res) {
@@ -98,5 +100,23 @@ export const updateUserProfile = async function (req, res) {
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteAccount = async function (req, res) {
+  try {
+    const userId = req.user._id;
+
+    const Cart = (await import("../models/Cart.js")).default;
+    const Order = (await import("../models/Order.js")).default;
+    const User = (await import("../models/User.js")).default;
+
+    await Cart.findOneAndDelete({ user: userId });
+    await Order.deleteMany({ user: userId });
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: "Account deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

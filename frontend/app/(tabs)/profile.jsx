@@ -86,6 +86,39 @@ export default function Profile() {
         .slice(0, 2)
     : "?";
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Delete Account",
+      "This will permanently delete your account, cart, and order history. This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await fetch(`${API_URL}/api/auth/profile`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              if (!response.ok) throw new Error("Failed to delete account");
+              await logout();
+              router.replace("/");
+              setTimeout(() => {
+                Alert.alert(
+                  "Account Deleted",
+                  "Your account has been permanently deleted.",
+                );
+              }, 300);
+            } catch (error) {
+              Alert.alert("Error", error.message);
+            }
+          },
+        },
+      ],
+    );
+  };
+
   const handleLogout = () => {
     Alert.alert("Log Out", "Are you sure you want to log out?", [
       { text: "Cancel", style: "cancel" },
@@ -199,6 +232,19 @@ export default function Profile() {
             color="#EB5757"
           />
           <Text style={styles.logoutText}>Log Out</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={handleDeleteAccount}
+          activeOpacity={0.7}
+        >
+          <Ionicons
+            name="person-remove-outline"
+            size={width * 0.05}
+            color="#EB5757"
+          />
+          <Text style={styles.deleteText}>Delete Account</Text>
         </TouchableOpacity>
 
         <Text style={styles.version}>Feastie v1.0.0</Text>
@@ -321,6 +367,20 @@ const styles = StyleSheet.create({
   logoutText: {
     fontFamily: "MontserratSemiBold",
     fontSize: width * 0.038,
+    color: "#EB5757",
+    marginLeft: width * 0.02,
+  },
+  deleteButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: width * 0.05,
+    paddingVertical: height * 0.015,
+    marginBottom: height * 0.01,
+  },
+  deleteText: {
+    fontFamily: "MontserratSemiBold",
+    fontSize: width * 0.033,
     color: "#EB5757",
     marginLeft: width * 0.02,
   },
