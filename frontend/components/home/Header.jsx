@@ -6,6 +6,7 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
@@ -19,7 +20,7 @@ export default function Header() {
       <TouchableHighlight
         underlayColor="#fff4e6"
         style={styles.avatarBtn}
-        onPress={() => alert("Go to profile")}
+        onPress={() => router.push("/(tabs)/profile")}
       >
         <Ionicons
           name="person-circle-outline"

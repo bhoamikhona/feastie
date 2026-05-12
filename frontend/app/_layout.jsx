@@ -1,30 +1,33 @@
 import { Stack, router } from "expo-router";
 import { useFonts } from "expo-font";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
 import { FavoritesProvider } from "../context/FavoritesContext";
+import { StatusBar } from "react-native";
 
 function RootLayoutNav() {
   const { user, loading } = useAuth();
 
+  const hasRedirected = useRef(false);
+
   useEffect(() => {
     if (loading) return;
-    if (user) {
+    if (user && !hasRedirected.current) {
+      hasRedirected.current = true;
       router.replace("/(tabs)");
     }
   }, [user, loading]);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" options={{ gestureEnabled: false }} />
-      <Stack.Screen name="(auth)/login" options={{ gestureEnabled: false }} />
-      <Stack.Screen
-        name="(auth)/register"
-        options={{ gestureEnabled: false }}
-      />
-      <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
-    </Stack>
+    <>
+      <StatusBar barStyle="dark-content" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="(auth)" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+    </>
   );
 }
 
