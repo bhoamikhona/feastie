@@ -18,26 +18,26 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const { width, height } = Dimensions.get("window");
 
 const CATEGORY_IMAGES = {
-  Pizza: require("../../assets/images/search/categories/pizza.jpg"),
-  Coffee: require("../../assets/images/search/categories/coffee.jpg"),
-  Doughnuts: require("../../assets/images/search/categories/doughnuts.jpeg"),
-  Cake: require("../../assets/images/search/categories/cake.jpg"),
-  Pasta: require("../../assets/images/search/categories/pasta.jpeg"),
-  Noodles: require("../../assets/images/search/categories/noodles.jpeg"),
-  Burgers: require("../../assets/images/search/categories/burger.jpg"),
+  Pizza: require("../../assets/images/search/categories/pizza.png"),
+  Coffee: require("../../assets/images/search/categories/coffee.png"),
+  Doughnuts: require("../../assets/images/search/categories/doughnuts.png"),
+  Cake: require("../../assets/images/search/categories/cake.png"),
+  Pasta: require("../../assets/images/search/categories/pasta.png"),
+  Noodles: require("../../assets/images/search/categories/noodles.png"),
+  Burgers: require("../../assets/images/search/categories/burger.png"),
 };
 
 const CUISINE_IMAGES = {
-  Italian: require("../../assets/images/search/cuisine/italian.jpg"),
-  American: require("../../assets/images/search/cuisine/american.jpg"),
-  Chinese: require("../../assets/images/search/cuisine/chinese.jpg"),
+  Italian: require("../../assets/images/search/cuisine/italian.png"),
+  American: require("../../assets/images/search/cuisine/american.png"),
+  Chinese: require("../../assets/images/search/cuisine/chinese.png"),
 };
 
 const TYPE_IMAGES = {
-  Breakfast: require("../../assets/images/search/type/breakfast.jpg"),
-  Lunch: require("../../assets/images/search/type/lunch.jpg"),
-  Dinner: require("../../assets/images/search/type/dinner.jpg"),
-  Dessert: require("../../assets/images/search/type/dessert.jpg"),
+  Breakfast: require("../../assets/images/search/type/breakfast.png"),
+  Lunch: require("../../assets/images/search/type/lunch.png"),
+  Dinner: require("../../assets/images/search/type/dinner.png"),
+  Dessert: require("../../assets/images/search/type/dessert.png"),
 };
 
 export default function Search() {
