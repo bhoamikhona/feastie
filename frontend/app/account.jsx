@@ -117,6 +117,16 @@ export default function Account() {
     zip: "",
   });
 
+  // Payment edit state
+  const [editingPayment, setEditingPayment] = useState(false);
+  const [savingPayment, setSavingPayment] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({
+    cardHolder: "",
+    cardNumber: "",
+    expiry: "",
+    brand: "",
+  });
+
   useEffect(() => {
     fetchProfile();
   }, []);
@@ -129,6 +139,12 @@ export default function Account() {
       const data = await response.json();
       setProfile(data);
       setPersonalForm({ name: data.name || "", phone: data.phone || "" });
+      setPaymentForm({
+        cardHolder: data.payment?.cardHolder || "",
+        cardNumber: data.payment?.cardNumber || "",
+        expiry: data.payment?.expiry || "",
+        brand: data.payment?.brand || "",
+      });
       setAddressForm({
         street: data.address?.street || "",
         apt: data.address?.apt || "",
@@ -204,6 +220,47 @@ export default function Account() {
       zip: profile?.address?.zip || "",
     });
     setEditingAddress(false);
+  };
+
+  const savePayment = async () => {
+    try {
+      setSavingPayment(true);
+      const last4 = paymentForm.cardNumber.replace(/\s/g, "").slice(-4);
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          payment: {
+            cardHolder: paymentForm.cardHolder,
+            cardNumber: paymentForm.cardNumber,
+            expiry: paymentForm.expiry,
+            last4,
+            brand: paymentForm.brand,
+          },
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      setProfile((prev) => ({ ...prev, payment: data.payment }));
+      setEditingPayment(false);
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setSavingPayment(false);
+    }
+  };
+
+  const cancelPayment = () => {
+    setPaymentForm({
+      cardHolder: profile?.payment?.cardHolder || "",
+      cardNumber: profile?.payment?.cardNumber || "",
+      expiry: profile?.payment?.expiry || "",
+      brand: profile?.payment?.brand || "",
+    });
+    setEditingPayment(false);
   };
 
   if (loading) {
@@ -335,33 +392,52 @@ export default function Account() {
           {/* Payment Method */}
           <SectionHeader
             title="Payment Method"
-            editing={false}
-            onEdit={() =>
-              Alert.alert("Payment", "Card management coming soon.")
-            }
+            editing={editingPayment}
+            onEdit={() => setEditingPayment(true)}
+            onSave={savePayment}
+            onCancel={cancelPayment}
+            saving={savingPayment}
           />
           <View style={styles.card}>
             <EditableRow
-              icon="card-outline"
-              label="Card"
-              value={
-                profile?.payment?.brand && profile?.payment?.last4
-                  ? `${profile.payment.brand} •••• ${profile.payment.last4}`
-                  : "—"
+              icon="person-outline"
+              label="Cardholder"
+              value={paymentForm.cardHolder}
+              onChangeText={(v) =>
+                setPaymentForm((p) => ({ ...p, cardHolder: v }))
               }
-              editable={false}
+              editable={editingPayment}
+            />
+            <EditableRow
+              icon="card-outline"
+              label="Card No."
+              value={
+                editingPayment
+                  ? paymentForm.cardNumber
+                  : profile?.payment?.last4
+                    ? `•••• •••• •••• ${profile.payment.last4}`
+                    : "—"
+              }
+              onChangeText={(v) =>
+                setPaymentForm((p) => ({ ...p, cardNumber: v }))
+              }
+              editable={editingPayment}
+              keyboardType="numeric"
+            />
+            <EditableRow
+              icon="storefront-outline"
+              label="Brand"
+              value={paymentForm.brand}
+              onChangeText={(v) => setPaymentForm((p) => ({ ...p, brand: v }))}
+              editable={editingPayment}
             />
             <EditableRow
               icon="calendar-outline"
-              label="Expires"
-              value={profile?.payment?.expiry || "—"}
-              editable={false}
-            />
-            <EditableRow
-              icon="person-outline"
-              label="Cardholder"
-              value={profile?.payment?.cardHolder || "—"}
-              editable={false}
+              label="Expiry"
+              value={paymentForm.expiry}
+              onChangeText={(v) => setPaymentForm((p) => ({ ...p, expiry: v }))}
+              editable={editingPayment}
+              keyboardType="numeric"
             />
           </View>
         </ScrollView>

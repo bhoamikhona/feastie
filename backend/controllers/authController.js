@@ -79,6 +79,16 @@ export const updateUserProfile = async function (req, res) {
 
     if (name) user.name = name;
     if (phone) user.phone = phone;
+    if (req.body.payment) {
+      const p = req.body.payment;
+      user.payment = {
+        cardHolder: p.cardHolder ?? user.payment?.cardHolder,
+        cardNumber: p.cardNumber ?? user.payment?.cardNumber,
+        expiry: p.expiry ?? user.payment?.expiry,
+        last4: p.last4 ?? user.payment?.last4,
+        brand: p.brand ?? user.payment?.brand,
+      };
+    }
     if (address) {
       user.address = {
         street: address.street ?? user.address.street,
@@ -97,6 +107,7 @@ export const updateUserProfile = async function (req, res) {
       email: updated.email,
       phone: updated.phone,
       address: updated.address,
+      payment: updated.payment,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
