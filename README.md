@@ -3,7 +3,7 @@
 A full-stack food delivery mobile application built with React Native (Expo), Node.js/Express, and MongoDB Atlas.
 
 **CS 639 — Mobile Application Development | Pace University | Spring 2026**
-**Author:** Bhoami K Khona | bhoami.k.khona@gmail.com | [github.com/bhoamikhona/feastie](https://github.com/bhoamikhona/feastie)
+**Author:** Bhoami K Khona | bhoami.k.khona@gmail.com | [github.com/bhoamikhona/feastie](https://github.com/bhoamikhona/feastie) | [Demo Video](https://drive.google.com/file/d/1uIPqr0Rape5y1PKOSRz9sIXJbAWBSEM2/view?usp=sharing)
 
 ---
 
